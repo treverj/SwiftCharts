@@ -67,5 +67,37 @@ class HelloWorld: UIViewController {
         
         self.view.addSubview(chart.view)
         self.chart = chart
+        
+
+        // debug frames
+        
+        func debugView(frame: CGRect, labelText: String) -> UIView {
+            let v = UIView(frame: frame)
+            v.backgroundColor = UIColor.clearColor()
+            v.layer.borderWidth = 1
+            v.layer.borderColor = UIColor.redColor().CGColor
+            let l = UILabel(frame: CGRectMake(0, -10, frame.width + 20, 10))
+            l.font = UIFont.systemFontOfSize(8)
+            l.textColor = UIColor.redColor()
+            l.text = labelText
+            v.addSubview(l)
+            return v
+        }
+        
+        for (axisValue, frames) in yAxis.axisValuesWithFrames {
+            for frame in frames {
+                view.addSubview(debugView(CGRectMake(frame.origin.x, frame.origin.y + chartFrame.origin.y, frame.width, frame.height), labelText: axisValue.description))
+            }
+        }
+        
+        for (axisValue, frames) in xAxis.axisValuesWithFrames {
+            for frame in frames {
+                view.addSubview(debugView(CGRectMake(frame.origin.x, frame.origin.y + chartFrame.origin.y, frame.width, frame.height), labelText: axisValue.description))
+            }
+        }
+        
+        for (view, chartPointModel) in chartPointsLayer.viewsWithChartPoints {
+            self.view.addSubview(debugView(CGRectMake(view.frame.origin.x, view.frame.origin.y + chartFrame.origin.y, view.frame.width, view.frame.height), labelText: chartPointModel.chartPoint.description))
+        }
     }
 }
