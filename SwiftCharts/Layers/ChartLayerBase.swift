@@ -33,5 +33,7 @@ public class ChartLayerBase: NSObject, ChartLayer {
     
     public func pan(deltaX: CGFloat, deltaY: CGFloat) {}
 
+    public func onTransformUpdate(transform: ChartTransform) {}
+    
     public override init() {}
 }

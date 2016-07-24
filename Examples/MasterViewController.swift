@@ -68,6 +68,8 @@ class MasterViewController: UITableViewController {
             self.detailViewController?.detailItem = example.0
             self.detailViewController?.title = example.1
         }
+        
+        performSegueWithIdentifier("showDetail", sender: self)
     }
     
     // MARK: - Segues
@@ -86,7 +88,7 @@ class MasterViewController: UITableViewController {
             if let indexPath = self.tableView.indexPathForSelectedRow {
                 showExample(indexPath.row)
             } else {
-                showExample(0)
+                showExample(7)
             }
         }
     }

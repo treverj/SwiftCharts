@@ -41,4 +41,11 @@ public class ChartCoordsSpaceLayer: ChartLayerBase {
     public func scalarForScreenLoc(y y: CGFloat) -> Double {
         return yAxis.innerScalarForScreenLoc(y * (chart?.contentView.transform.d ?? 1))
     }
+    
+    func applyTransform(screenLoc: CGPoint) -> CGPoint {
+        guard let chart = chart else {return CGPointZero}
+        // move to global coords space, apply global transform and move back
+        // Assumes screenLoc relative to containerView's frame which means using drawersContentView -- TODO improve
+        return chart.view.convertPoint(chart.transform.apply(chart.view.convertPoint(screenLoc, fromView: chart.containerView)), toView: chart.containerView)
+    }
 }

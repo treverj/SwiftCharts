@@ -57,7 +57,7 @@ public protocol ChartDelegate {
 }
 
 /// A Chart object is the highest level access to your chart. It has the view where all of the chart layers are drawn, which you can provide (useful if you want to position it as part of a storyboard or XIB), or it can be created for you.
-public class Chart: Pannable, Zoomable {
+public class Chart {
 
     /// The view that the chart is drawn in
     public let view: ChartView
@@ -68,6 +68,8 @@ public class Chart: Pannable, Zoomable {
 
     /// The layers of the chart that are drawn in the view
     private let layers: [ChartLayer]
+
+    private(set)var transform: ChartTransform
 
     public var delegate: ChartDelegate?
 
@@ -117,7 +119,9 @@ public class Chart: Pannable, Zoomable {
         self.layers = layers
         
         self.view = view
-
+        
+        transform = ChartTransform()
+        
         let containerView = UIView(frame: innerFrame ?? view.bounds)
         
         let drawersContentView = ChartContentView(frame: containerView.bounds)
@@ -134,6 +138,9 @@ public class Chart: Pannable, Zoomable {
         self.contentView = contentView
         self.drawersContentView = drawersContentView
         self.containerView = containerView
+        
+        transform.chart = self
+        
         contentView.chart = self
         drawersContentView.chart = self
         
@@ -218,31 +225,33 @@ public class Chart: Pannable, Zoomable {
         contentView.transform = CGAffineTransformMakeScale(contentView.transform.a * widthChangeFactor, contentView.transform.d * heightChangeFactor)
         contentView.frame = frameBeforeScale
     }
+
+    public func zoom(deltaX deltaX: CGFloat, deltaY: CGFloat, centerX: CGFloat, centerY: CGFloat) {
+        transform.zoom(deltaX: deltaX, deltaY: deltaY, centerX: centerX, centerY: centerY)
+        updateTransforms()
+    }
     
-    public func onZoomStart(deltaX deltaX: CGFloat, deltaY: CGFloat, centerX: CGFloat, centerY: CGFloat) {
+    public func pan(deltaX deltaX: CGFloat, deltaY: CGFloat, isGesture: Bool, isDeceleration: Bool) {
+        transform.pan(deltaX: deltaX, deltaY: deltaY)
+        updateTransforms()
+    }
+
+    private func incrementZoom(x x: CGFloat, y: CGFloat, centerX: CGFloat, centerY: CGFloat) {
+        transform.incrementZoom(x: x, y: y, centerX: centerX, centerY: centerY)
+        updateTransforms()
+    }
+    
+    private func updateTransforms() {
+        applyTransformToContentView(transform)
         for layer in layers {
-            layer.zoom(deltaX, y: deltaY, centerX: centerX, centerY: centerY)
+            layer.onTransformUpdate(transform)
         }
     }
     
-    public func onZoomStart(scaleX scaleX: CGFloat, scaleY: CGFloat, centerX: CGFloat, centerY: CGFloat) {
-        for layer in layers {
-            layer.zoom(scaleX, scaleY: scaleY, centerX: centerX, centerY: centerY)
-        }
-    }
-    
-    public func onZoomFinish(scaleX scaleX: CGFloat, scaleY: CGFloat, deltaX: CGFloat, deltaY: CGFloat, centerX: CGFloat, centerY: CGFloat, isGesture: Bool) {
-        delegate?.onZoom(scaleX: scaleX, scaleY: scaleY, deltaX: deltaX, deltaY: deltaY, centerX: centerX, centerY: centerY, isGesture: isGesture)
-    }
-    
-    public func onPanStart(deltaX deltaX: CGFloat, deltaY: CGFloat) {
-        for layer in layers {
-            layer.pan(deltaX, deltaY: deltaY)
-        }
-    }
-    
-    public func onPanFinish(transX transX: CGFloat, transY: CGFloat, deltaX: CGFloat, deltaY: CGFloat, isGesture: Bool, isDeceleration: Bool) {
-        delegate?.onPan(transX: transX, transY: transY, deltaX: deltaX, deltaY: deltaY, isGesture: isGesture, isDeceleration: isDeceleration)
+    private func applyTransformToContentView(transform: ChartTransform) {
+        contentView.transform.a = transform.transform.a
+        contentView.transform.d = transform.transform.d
+        // TODO
     }
 
     /**
@@ -333,9 +342,22 @@ public class ChartView: UIView, UIGestureRecognizerDelegate {
         self.backgroundColor = UIColor.clearColor()
     }
     
+//    private var currentPinchCenter: CGPoint! // testing fixed pinch center (during gesture)
+
+    
     @objc func onPinch(sender: UIPinchGestureRecognizer) {
         
         guard sender.numberOfTouches() > 1 else {return}
+        guard let chart = chart else {return}
+        
+        
+        
+//        switch sender.state {
+//        case .Began:
+//            let center = sender.locationInView(self)
+//            currentPinchCenter = center
+//        default: break
+//        }
         
         let center = sender.locationInView(self)
         
@@ -347,8 +369,9 @@ public class ChartView: UIView, UIGestureRecognizerDelegate {
         let minScale = (absMin * (sender.scale - 1) / absMax) + 1
         let (deltaX, deltaY) = x > y ? (sender.scale, minScale) : (minScale, sender.scale)
         
-        chart?.zoom(deltaX: deltaX, deltaY: deltaY, centerX: center.x, centerY: center.y, isGesture: true)
-        
+//        chart?.zoom(deltaX: deltaX, deltaY: deltaY, centerX: center.x, centerY: center.y, isGesture: true)
+        chart.incrementZoom(x: (deltaX - 1) * chart.transform.scaleX, y: (deltaY - 1) * chart.transform.scaleY, centerX: center.x, centerY: center.y)
+
         sender.scale = 1.0
     }
     
@@ -371,25 +394,25 @@ public class ChartView: UIView, UIGestureRecognizerDelegate {
             chart?.pan(deltaX: deltaX, deltaY: deltaY, isGesture: true, isDeceleration: false)
             
         case .Ended:
-            
-            guard let view = sender.view else {print("Recogniser has no view"); return}
-            
-            let velocityX = sender.velocityInView(sender.view).x
-            let velocityY = sender.velocityInView(sender.view).y
-            
-            func next(index: Int, velocityX: CGFloat, velocityY: CGFloat) {
-                dispatch_async(dispatch_get_main_queue()) {
-                    
-                    self.chart?.pan(deltaX: velocityX, deltaY: velocityY, isGesture: true, isDeceleration: true)
-                    
-                    if abs(velocityX) > 0.1 || abs(velocityY) > 0.1 {
-                        let friction: CGFloat = 0.9
-                        next(index + 1, velocityX: velocityX * friction, velocityY: velocityY * friction)
-                    }
-                }
-            }
-            let initFriction: CGFloat = 50
-            next(0, velocityX: velocityX / initFriction, velocityY: velocityY / initFriction)
+            break
+//            guard let view = sender.view else {print("Recogniser has no view"); return}
+//            
+//            let velocityX = sender.velocityInView(sender.view).x
+//            let velocityY = sender.velocityInView(sender.view).y
+//            
+//            func next(index: Int, velocityX: CGFloat, velocityY: CGFloat) {
+//                dispatch_async(dispatch_get_main_queue()) {
+//                    
+//                    self.chart?.pan(deltaX: velocityX, deltaY: velocityY, isGesture: true, isDeceleration: true)
+//                    
+//                    if abs(velocityX) > 0.1 || abs(velocityY) > 0.1 {
+//                        let friction: CGFloat = 0.9
+//                        next(index + 1, velocityX: velocityX * friction, velocityY: velocityY * friction)
+//                    }
+//                }
+//            }
+//            let initFriction: CGFloat = 50
+//            next(0, velocityX: velocityX / initFriction, velocityY: velocityY / initFriction)
             
         case .Cancelled: break;
         case .Failed: break;

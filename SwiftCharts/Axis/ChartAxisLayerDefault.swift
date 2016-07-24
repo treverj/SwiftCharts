@@ -294,4 +294,10 @@ class ChartAxisLayerDefault: ChartAxisLayer {
     func pan(deltaX: CGFloat, deltaY: CGFloat) {
         fatalError("override")
     }
+    
+    func onTransformUpdate(transform: ChartTransform) {
+        axis.onTransformUpdate(transform)
+        update()
+        chart?.view.setNeedsDisplay()
+    }
 }

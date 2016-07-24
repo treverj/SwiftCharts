@@ -38,13 +38,17 @@ public class ChartPointsScatterLayer<T: ChartPoint>: ChartPointsLayer<T> {
             let h = itemSize.height
             
             for chartPointModel in chartPointsModels {
-                let screenLoc = modelLocToScreenLoc(x: chartPointModel.chartPoint.x.scalar, y: chartPointModel.chartPoint.y.scalar)
+                let screenLoc = applyTransform(chartPointModel.screenLoc)
                 CGContextSaveGState(context)
                 CGContextTranslateCTM(context, screenLoc.x, screenLoc.y)
                 CGContextDrawLayerInRect(context, CGRectMake(-w / 2, -h / 2, w, h), layer)
                 CGContextRestoreGState(context)
             }
         }
+    }
+    
+    public override func onTransformUpdate(transform: ChartTransform) {
+        chart?.drawersContentView.setNeedsDisplay()
     }
     
     public override func modelLocToScreenLoc(x x: Double) -> CGFloat {

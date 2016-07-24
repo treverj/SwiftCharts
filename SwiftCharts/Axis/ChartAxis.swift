@@ -123,6 +123,10 @@ public class ChartAxis: CustomStringConvertible {
         fatalError("Override")
     }
     
+    func onTransformUpdate(transform: ChartTransform) {
+        fatalError("override")
+    }
+    
     func offsetFirstScreen(offset: CGFloat) {
         firstScreen += offset
         firstScreenInit += offset
