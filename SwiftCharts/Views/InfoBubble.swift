@@ -23,10 +23,11 @@ public class InfoBubble: UIView {
     
     public let point: CGPoint
     
-    public var tapHandler: (() -> Void)?
+    public var closeHandler: (() -> Void)?
 
-    public var inverted: Bool {
-        return superview.map{inverted($0)} ?? false
+    private var inverted: Bool {
+        guard let superview = superview else {return false}
+        return horizontal ? point.x > superview.frame.width - frame.width - space : point.y < bounds.size.height
     }
 
     public let horizontal: Bool
@@ -73,7 +74,12 @@ public class InfoBubble: UIView {
     }
     
     func onTap(sender: UITapGestureRecognizer) {
-        tapHandler?()
+        close()
+    }
+    
+    public func close() {
+        closeHandler?()
+        removeFromSuperview()
     }
     
     public override func didMoveToSuperview() {
@@ -83,10 +89,6 @@ public class InfoBubble: UIView {
         }
     }
 
-    public func inverted(superview: UIView) -> Bool {
-        return horizontal ? point.x > superview.frame.width - frame.width - space : point.y < bounds.size.height
-    }
-    
     required public init(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }

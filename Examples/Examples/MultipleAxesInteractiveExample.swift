@@ -261,7 +261,7 @@ class MultipleAxesInteractiveExample: UIViewController {
             selectorView.touchHandler = {[weak self] in
                 self!.selectedLayersFlags[index] = !self!.selectedLayersFlags[index]
                 selectorViewWeak?.backgroundColor = self!.selectedLayersFlags[index] ? self!.bgColors[index] : UIColor.grayColor()
-                self!.showChart(chartSettings, lineAnimDuration: 0)
+                self!.showChart(chartSettings, lineAnimDuration: 0.5)
             }
             
             v.addSubview(selectorView)

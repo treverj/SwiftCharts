@@ -29,14 +29,14 @@ class BarsPlusMinusAndLinesExample: UIViewController {
         ]
 
         let lineData: [(title: String, val: Double)] = [
-            ("A", -10),
+            ("A", 20),
             ("B", 20),
-            ("C", -20),
-            ("D", 10),
-            ("E", -20),
-            ("F", 23),
-            ("G", 10),
-            ("H", 45)
+            ("C", 20),
+            ("D", 20),
+            ("E", 20),
+            ("F", 20),
+            ("G", 20),
+            ("H", 20)
         ]
         
         let alpha: CGFloat = 0.5
@@ -114,7 +114,7 @@ class BarsPlusMinusAndLinesExample: UIViewController {
         }, displayDelay: 0.5) // show after bars animation
         
         // line layer
-        let lineChartPoints = lineData.enumerate().map {index, tuple in ChartPoint(x: ChartAxisValueDouble(index), y: ChartAxisValueDouble(tuple.val))}
+        let lineChartPoints = lineData.enumerate().map {index, tuple in ChartPoint(x: ChartAxisValueDouble(index-1), y: ChartAxisValueDouble(tuple.val))}
         let lineModel = ChartLineModel(chartPoints: lineChartPoints, lineColor: UIColor.blackColor(), lineWidth: 2, animDuration: 0.5, animDelay: 1)
         let lineLayer = ChartPointsLineLayer(xAxis: xAxisLayer.axis, yAxis: yAxisLayer.axis, lineModels: [lineModel])
         
@@ -147,8 +147,7 @@ class BarsPlusMinusAndLinesExample: UIViewController {
                 barsLayer,
                 labelsLayer,
                 yZeroGapLayer,
-                lineLayer,
-                lineCirclesLayer
+                lineLayer
             ]
         )
         

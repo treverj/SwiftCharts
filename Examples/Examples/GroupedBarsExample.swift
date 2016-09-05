@@ -12,6 +12,8 @@ import SwiftCharts
 class GroupedBarsExample: UIViewController {
 
     private var chart: Chart?
+    private var shadowView: UIView?
+    private var lineView: UIView?
 
     private let dirSelectorHeight: CGFloat = 50
 
@@ -35,6 +37,46 @@ class GroupedBarsExample: UIViewController {
                 (0, 5)
                 ]),
             ("D", [
+                (0, 30),
+                (0, 50),
+                (0, 5)
+                ]),
+            ("E", [
+                (0, 30),
+                (0, 50),
+                (0, 5)
+                ]),
+            ("F", [
+                (0, 30),
+                (0, 50),
+                (0, 5)
+                ]),
+            ("G", [
+                (0, 30),
+                (0, 50),
+                (0, 5)
+                ]),
+            ("H", [
+                (0, 30),
+                (0, 50),
+                (0, 5)
+                ]),
+            ("I", [
+                (0, 30),
+                (0, 50),
+                (0, 5)
+                ]),
+            ("J", [
+                (0, 30),
+                (0, 50),
+                (0, 5)
+                ]),
+            ("K", [
+                (0, 30),
+                (0, 50),
+                (0, 5)
+                ]),
+            ("L", [
                 (0, 55),
                 (0, 30),
                 (0, 25)
@@ -59,7 +101,7 @@ class GroupedBarsExample: UIViewController {
         )
         let (xValues, yValues) = horizontal ? (axisValues1, axisValues2) : (axisValues2, axisValues1)
         
-        let xModel = ChartAxisModel(axisValues: xValues, axisTitleLabel: ChartAxisLabel(text: "Axis title", settings: labelSettings))
+        let xModel = ChartAxisModel(axisValues: xValues, lineColor: UIColor.clearColor(), axisTitleLabel: ChartAxisLabel(text: "Axis title", settings: labelSettings))
         let yModel = ChartAxisModel(axisValues: yValues, axisTitleLabel: ChartAxisLabel(text: "Axis title", settings: labelSettings.defaultVertical()))
         let frame = ExamplesDefaults.chartFrame(self.view.bounds)
         let chartFrame = self.chart?.frame ?? CGRectMake(frame.origin.x, frame.origin.y, frame.size.width, frame.size.height - self.dirSelectorHeight)
@@ -69,40 +111,41 @@ class GroupedBarsExample: UIViewController {
         let coordsSpace = ChartCoordsSpaceLeftBottomSingleAxis(chartSettings: chartSettings, chartFrame: chartFrame, xModel: xModel, yModel: yModel)
         let (xAxisLayer, yAxisLayer, innerFrame) = (coordsSpace.xAxisLayer, coordsSpace.yAxisLayer, coordsSpace.chartInnerFrame)
         
-        let groupsLayer = ChartGroupedPlainBarsLayer(xAxis: xAxisLayer.axis, yAxis: yAxisLayer.axis, groups: groups, horizontal: horizontal, barSpacing: 2, groupSpacing: 25, animDuration: 0.5, selectionViewUpdater: ChartViewSelectorBrightness(selectedFactor: 0.5)) {tappedGroupBar in
+        let groupsLayer = ChartGroupedPlainBarsLayer(xAxis: xAxisLayer.axis, yAxis: yAxisLayer.axis, groups: groups, horizontal: horizontal, barWidth: 5, barSpacing: 0, groupSpacing: 30, animDuration: 0.5, selectionViewUpdater: nil)
+        {tappedGroupBar in
             
-            let barPoint = horizontal ? CGPointMake(tappedGroupBar.tappedBar.view.frame.maxX, tappedGroupBar.tappedBar.view.frame.midY) : CGPointMake(tappedGroupBar.tappedBar.view.frame.midX, tappedGroupBar.tappedBar.view.frame.minY)
-            
-            guard let chart = self.chart, chartViewPoint = tappedGroupBar.layer.contentToGlobalCoordinates(barPoint) else {return}
-            
-            let viewPoint = CGPointMake(chartViewPoint.x, chartViewPoint.y)
-            
-            let infoBubble = InfoBubble(point: viewPoint, preferredSize: CGSizeMake(50, 40), superview: self.chart!.view, text: tappedGroupBar.tappedBar.model.axisValue2.description, font: ExamplesDefaults.labelFont, textColor: UIColor.whiteColor(), bgColor: UIColor.blackColor(), horizontal: horizontal)
-
-            let anchor: CGPoint = {
-                switch (horizontal, infoBubble.inverted(chart.view)) {
-                case (true, true): return CGPointMake(1, 0.5)
-                case (true, false): return CGPointMake(0, 0.5)
-                case (false, true): return CGPointMake(0.5, 0)
-                case (false, false): return CGPointMake(0.5, 1)
-                }
-            }()
-            
-            let animators = ChartViewAnimators(view: infoBubble, animators: ChartViewGrowAnimator(anchor: anchor), onFinishInverts: {
-                infoBubble.removeFromSuperview()
-            })
-            
-            chart.view.addSubview(infoBubble)
-            
-            infoBubble.tapHandler = {
-                animators.invert()
+            if ((self.shadowView == nil)){
+                let test = UIView(frame: tappedGroupBar.layer.highlightLayer[tappedGroupBar.groupIndex])
+                test.backgroundColor = UIColor.blackColor().colorWithAlphaComponent(0.5)
+                self.shadowView = test
+                self.chart?.addSubview(self.shadowView!)
             }
-            
-            animators.animate()
-        }
+            else {
+                UIView.animateWithDuration(CFTimeInterval(0.1), delay: 0, options: .CurveEaseOut, animations: {
+                    self.shadowView?.frame = tappedGroupBar.layer.highlightLayer[tappedGroupBar.groupIndex]
+                    self.view.layoutIfNeeded()
+                    }, completion: nil)
+//                self.shadowView?.frame = tappedGroupBar.layer.hightLayer[tappedGroupBar.groupIndex]
+            }
+          }
         
-        let settings = ChartGuideLinesLayerSettings(linesColor: UIColor.blackColor(), linesWidth: ExamplesDefaults.guidelinesWidth)
-        let guidelinesLayer = ChartGuideLinesLayer(xAxisLayer: xAxisLayer, yAxisLayer: yAxisLayer, axis: horizontal ? .X : .Y, settings: settings)
+        
+        // line layer
+//        let lineChartPoints = 0.stride(through: groupsData.count+1, by: 1).map {ChartPoint(x: ChartAxisValueDouble($0-1), y: ChartAxisValueDouble(10))}
+//        let lineModel = ChartLineModel(chartPoints: lineChartPoints, lineColor: UIColor.blackColor(), lineWidth: 2, animDuration: 0.5, animDelay: 1)
+//        let lineLayer = ChartPointsLineLayer(xAxis: xAxisLayer.axis, yAxis: yAxisLayer.axis, lineModels: [lineModel])
+        
+        let guidelinesHighlightLayerSettings = ChartGuideLinesDottedLayerSettings(linesColor: UIColor.blackColor(), linesWidth: 1, dotWidth: 4, dotSpacing: 4)
+        let guidelinesHighlightLayer = ChartGuideLinesForValuesDottedLayer(xAxis: xAxisLayer.axis, yAxis: yAxisLayer.axis, settings: guidelinesHighlightLayerSettings, axisValuesX: [], axisValuesY: [ChartAxisValueDouble(20)], title: "Protein", conflicts: 0)
+        
+        let guidelinesHighlightLayer2 = ChartGuideLinesForValuesDottedLayer(xAxis: xAxisLayer.axis, yAxis: yAxisLayer.axis, settings: guidelinesHighlightLayerSettings, axisValuesX: [], axisValuesY: [ChartAxisValueDouble(19)], title: "Carbs", conflicts: 1)
+        
+        let lineX = yAxisLayer.frame.origin.x + yAxisLayer.frame.width - 1
+        let lineY = yAxisLayer.frame.origin.y + 60
+        let lineView = UIView(frame: CGRectMake(lineX, lineY, 2, yAxisLayer.frame.height))
+        lineView.backgroundColor = UIColor.redColor()
+        self.lineView = lineView
+        
         
         return Chart(
             frame: chartFrame,
@@ -111,8 +154,10 @@ class GroupedBarsExample: UIViewController {
             layers: [
                 xAxisLayer,
                 yAxisLayer,
-                guidelinesLayer,
-                groupsLayer
+                groupsLayer,
+                guidelinesHighlightLayer,
+                guidelinesHighlightLayer2
+//                lineLayer
             ]
         )
     }
@@ -124,6 +169,7 @@ class GroupedBarsExample: UIViewController {
         let chart = self.barsChart(horizontal: horizontal)
         self.view.addSubview(chart.view)
         self.chart = chart
+        self.view.addSubview(self.lineView!)
     }
     
     override func viewDidLoad() {

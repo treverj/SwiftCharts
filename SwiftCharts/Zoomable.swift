@@ -55,11 +55,9 @@ public extension Zoomable {
     
     public func zoom(scaleX scaleX: CGFloat, scaleY: CGFloat, centerX: CGFloat, centerY: CGFloat) {
         
-//        let finalMinScaleX = minScaleX.map{max($0, scaleX)} ?? scaleX
-        let finalMinScaleX = scaleX
+        let finalMinScaleX = minScaleX.map{max($0, scaleX)} ?? scaleX
         let finalScaleX = maxScaleX.map{min(finalMinScaleX, $0)} ?? finalMinScaleX
-//        let finalMinScaleY = minScaleY.map{max($0, scaleY)} ?? scaleY
-        let finalMinScaleY = scaleY
+        let finalMinScaleY = minScaleY.map{max($0, scaleY)} ?? scaleY
         let finalScaleY = maxScaleY.map{min(finalMinScaleY, $0)} ?? finalMinScaleY
         
         onZoomStart(scaleX: finalScaleX, scaleY: finalScaleY, centerX: centerX, centerY: centerY)
@@ -76,14 +74,10 @@ public extension Zoomable {
     
     public func zoom(deltaX deltaX: CGFloat, deltaY: CGFloat, centerX: CGFloat, centerY: CGFloat, isGesture: Bool) {
 
-//        let finalMinDeltaX = minScaleX.map{max($0 / scaleX, deltaX)} ?? deltaX
-        let finalMinDeltaX = deltaX
-//        let finalDeltaX = maxScaleX.map{min($0 / scaleX, finalMinDeltaX)} ?? finalMinDeltaX
-        let finalDeltaX = finalMinDeltaX
-//        let finalMinDeltaY = minScaleY.map{max($0 / scaleY, deltaY)} ?? deltaY
-        let finalMinDeltaY = deltaY
-//        let finalDeltaY = maxScaleY.map{min($0 / scaleY, finalMinDeltaY)} ?? finalMinDeltaY
-        let finalDeltaY = finalMinDeltaY
+        let finalMinDeltaX = minScaleX.map{max($0 / scaleX, deltaX)} ?? deltaX
+        let finalDeltaX = maxScaleX.map{min($0 / scaleX, finalMinDeltaX)} ?? finalMinDeltaX
+        let finalMinDeltaY = minScaleY.map{max($0 / scaleY, deltaY)} ?? deltaY
+        let finalDeltaY = maxScaleY.map{min($0 / scaleY, finalMinDeltaY)} ?? finalMinDeltaY
         
         onZoomStart(deltaX: finalDeltaX, deltaY: finalDeltaY, centerX: centerX, centerY: centerY)
         
@@ -97,11 +91,9 @@ public extension Zoomable {
         let contentFrame = contentView.frame
         
         setContentViewAnchor(centerX, centerY: centerY)
-
-//        let scaleX = max(containerFrame.width / contentFrame.width, deltaX)
-        let scaleX = deltaX
-//        let scaleY = max(containerFrame.height / contentFrame.height, deltaY)
-        let scaleY = deltaY
+        
+        let scaleX = max(containerFrame.width / contentFrame.width, deltaX)
+        let scaleY = max(containerFrame.height / contentFrame.height, deltaY)
 
         setContentViewScale(scaleX: scaleX, scaleY: scaleY)
     }
@@ -124,7 +116,7 @@ public extension Zoomable {
 
     private func setContentViewScale(scaleX scaleX: CGFloat, scaleY: CGFloat) {
         contentView.transform = CGAffineTransformScale(contentView.transform, scaleX, scaleY)
-//        keepInBoundaries()
+        keepInBoundaries()
     }
     
     private func keepInBoundaries() {

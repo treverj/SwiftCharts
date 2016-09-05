@@ -31,16 +31,11 @@ extension CGPoint {
     }
     
     func nearest(intersections: [CGPoint]) -> (distance: CGFloat, point: CGPoint)? {
-        return nearest(intersections, pointMapper: {$0}).map{(distance: $0.distance, point: $0.pointMappable)}
-    }
-    
-    /// Finds nearest object which can be mapped to a point using pointMapper function. This is convenient for objects that contain/represent a point, in order to avoid having to map to points and back.
-    func nearest<T>(pointMappables: [T], pointMapper: T -> CGPoint) -> (distance: CGFloat, pointMappable: T)? {
-        var minDistancePoint: (distance: CGFloat, pointMappable: T)? = nil
-        for pointMappable in pointMappables {
-            let dist = distance(pointMapper(pointMappable))
+        var minDistancePoint: (distance: CGFloat, point: CGPoint)? = nil
+        for intersection in intersections {
+            let dist = distance(intersection)
             if (minDistancePoint.map{dist < $0.0}) ?? true {
-                minDistancePoint = (dist, pointMappable)
+                minDistancePoint = (dist, intersection)
             }
         }
         return minDistancePoint

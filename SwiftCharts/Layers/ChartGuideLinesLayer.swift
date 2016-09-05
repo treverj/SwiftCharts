@@ -112,11 +112,17 @@ public class ChartGuideLinesForValuesLayerAbstract<T: ChartGuideLinesLayerSettin
     private let settings: T
     private let axisValuesX: [ChartAxisValue]
     private let axisValuesY: [ChartAxisValue]
+    private let title: String
+    private let conflicts: CGFloat
+    private var labelDrawn: Bool = false
 
-    public init(xAxis: ChartAxis, yAxis: ChartAxis, settings: T, axisValuesX: [ChartAxisValue], axisValuesY: [ChartAxisValue]) {
+
+    public init(xAxis: ChartAxis, yAxis: ChartAxis, settings: T, axisValuesX: [ChartAxisValue], axisValuesY: [ChartAxisValue], title:String, conflicts:CGFloat) {
         self.settings = settings
         self.axisValuesX = axisValuesX
         self.axisValuesY = axisValuesY
+        self.title = title
+        self.conflicts = conflicts
         super.init(xAxis: xAxis, yAxis: yAxis)
     }
     
@@ -157,8 +163,8 @@ public class ChartGuideLinesForValuesLayerAbstract<T: ChartGuideLinesLayerSettin
 public typealias ChartGuideLinesForValuesLayer = ChartGuideLinesForValuesLayer_<Any>
 public class ChartGuideLinesForValuesLayer_<N>: ChartGuideLinesForValuesLayerAbstract<ChartGuideLinesLayerSettings> {
     
-    public override init(xAxis: ChartAxis, yAxis: ChartAxis, settings: ChartGuideLinesLayerSettings, axisValuesX: [ChartAxisValue], axisValuesY: [ChartAxisValue]) {
-        super.init(xAxis: xAxis, yAxis: yAxis, settings: settings, axisValuesX: axisValuesX, axisValuesY: axisValuesY)
+    public override init(xAxis: ChartAxis, yAxis: ChartAxis, settings: ChartGuideLinesLayerSettings, axisValuesX: [ChartAxisValue], axisValuesY: [ChartAxisValue], title: String, conflicts:CGFloat) {
+        super.init(xAxis: xAxis, yAxis: yAxis, settings: settings, axisValuesX: axisValuesX, axisValuesY: axisValuesY, title:title, conflicts:conflicts)
     }
     
     override private func drawGuideline(context: CGContextRef, p1: CGPoint, p2: CGPoint) {
@@ -169,11 +175,25 @@ public class ChartGuideLinesForValuesLayer_<N>: ChartGuideLinesForValuesLayerAbs
 public typealias ChartGuideLinesForValuesDottedLayer = ChartGuideLinesForValuesDottedLayer_<Any>
 public class ChartGuideLinesForValuesDottedLayer_<N>: ChartGuideLinesForValuesLayerAbstract<ChartGuideLinesDottedLayerSettings> {
     
-    public override init(xAxis: ChartAxis, yAxis: ChartAxis, settings: ChartGuideLinesDottedLayerSettings, axisValuesX: [ChartAxisValue], axisValuesY: [ChartAxisValue]) {
-        super.init(xAxis: xAxis, yAxis: yAxis, settings: settings, axisValuesX: axisValuesX, axisValuesY: axisValuesY)
+    public override init(xAxis: ChartAxis, yAxis: ChartAxis, settings: ChartGuideLinesDottedLayerSettings, axisValuesX: [ChartAxisValue], axisValuesY: [ChartAxisValue], title: String, conflicts:CGFloat) {
+        super.init(xAxis: xAxis, yAxis: yAxis, settings: settings, axisValuesX: axisValuesX, axisValuesY: axisValuesY, title:title, conflicts:conflicts)
     }
     
     override private func drawGuideline(context: CGContextRef, p1: CGPoint, p2: CGPoint) {
+        if (!self.labelDrawn) {
+            let width: CGFloat = 40.0
+            let height: CGFloat = 20.0
+            let x = p1.x + ((width+1)*self.conflicts)
+            let y = p1.y+51
+            let label = UILabel(frame: CGRectMake(x, y, width, height))
+            label.backgroundColor = UIColor.blackColor()
+            label.textColor = UIColor.whiteColor()
+            label.font = UIFont(name: "Arial", size: 10)
+            label.text = self.title
+            label.textAlignment = .Center
+            self.chart?.view.superview?.addSubview(label)
+            self.labelDrawn = true
+        }
         ChartDrawDottedLine(context: context, p1: p1, p2: p2, width: self.settings.linesWidth, color: self.settings.linesColor, dotWidth: self.settings.dotWidth, dotSpacing: self.settings.dotSpacing)
     }
 }

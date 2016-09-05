@@ -67,7 +67,12 @@ struct ExamplesDefaults {
     private static var iPhoneChartSettingsWithPanZoom: ChartSettings {
         let chartSettings = iPhoneChartSettings
         chartSettings.zoomPan.panEnabled = true
-        chartSettings.zoomPan.zoomEnabled = true
+        chartSettings.zoomPan.gestureMode = .OnlyX
+        chartSettings.zoomPan.maxZoomX = 1.7
+        chartSettings.zoomPan.minZoomX = 1.7
+//        chartSettings.zoomPan.zoomEnabled = true
+        
+        
         return chartSettings
     }
     

@@ -63,46 +63,34 @@ public class ChartAxisX: ChartAxis {
         let deltaSegment2 = (segment2 * x) - segment2
         var newOriginX = firstScreen - deltaSegment1
         var newEndX = lastScreen + deltaSegment2
-
         
+        if newEndX < lastScreenInit {
+            let delta = lastScreenInit - newEndX
+            newEndX = lastScreenInit
+            newOriginX = newOriginX + delta
+        }
         
+        if newOriginX > firstScreenInit {
+            let delta = newOriginX - firstScreenInit
+            newOriginX = firstScreenInit
+            newEndX = newEndX - delta
+        }
         
-        
-        
-        
-        
-        
-        
-        firstScreen = newOriginX
-        lastScreen = newEndX
-
-//        if newEndX < lastScreenInit {
-//            let delta = lastScreenInit - newEndX
-//            newEndX = lastScreenInit
-//            newOriginX = newOriginX + delta
-//        }
-//        
-//        if newOriginX > firstScreenInit {
-//            let delta = newOriginX - firstScreenInit
-//            newOriginX = firstScreenInit
-//            newEndX = newEndX - delta
-//        }
-//        
-//        if newEndX - newOriginX > lastScreenInit - firstScreenInit { // new length > original length
-//            firstScreen = newOriginX
-//            lastScreen = newEndX
-//            
-//            // if p1 is to the right of origin, move it back
-//            let offsetOriginX = firstScreen - firstScreenInit
-//            if offsetOriginX > 0 {
-//                firstScreen = firstScreen - offsetOriginX
-//                lastScreen = lastScreen - offsetOriginX
-//            }
-//            
-//        } else { // possible correction
-//            firstScreen = firstScreenInit
-//            lastScreen = lastScreenInit
-//        }
+        if newEndX - newOriginX > lastScreenInit - firstScreenInit { // new length > original length
+            firstScreen = newOriginX
+            lastScreen = newEndX
+            
+            // if p1 is to the right of origin, move it back
+            let offsetOriginX = firstScreen - firstScreenInit
+            if offsetOriginX > 0 {
+                firstScreen = firstScreen - offsetOriginX
+                lastScreen = lastScreen - offsetOriginX
+            }
+            
+        } else { // possible correction
+            firstScreen = firstScreenInit
+            lastScreen = lastScreenInit
+        }
     }
     
     
@@ -113,14 +101,12 @@ public class ChartAxisX: ChartAxis {
         let (newOriginX, newEndX): (CGFloat, CGFloat) = {
             
             if deltaX < 0 { // scrolls left
-//                let endX = max(lastScreenInit, lastScreen + deltaX)
-                let endX = lastScreen + deltaX
+                let endX = max(lastScreenInit, lastScreen + deltaX)
                 let originX = endX - length
                 return (originX, endX)
                 
             } else if deltaX > 0 {  // scrolls right
-//                let originX = min(firstScreen + deltaX, firstScreenInit)
-                let originX = firstScreen + deltaX
+                let originX = min(firstScreen + deltaX, firstScreenInit)
                 let endX = originX + length
                 return (originX, endX)
                 

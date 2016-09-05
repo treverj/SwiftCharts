@@ -79,7 +79,7 @@ class BubbleExample: UIViewController {
         let guidelinesLayer = ChartGuideLinesDottedLayer(xAxisLayer: xAxisLayer, yAxisLayer: yAxisLayer, settings: guidelinesLayerSettings)
 
         let guidelinesHighlightLayerSettings = ChartGuideLinesDottedLayerSettings(linesColor: UIColor.redColor(), linesWidth: 1, dotWidth: 4, dotSpacing: 4)
-        let guidelinesHighlightLayer = ChartGuideLinesForValuesDottedLayer(xAxis: xAxisLayer.axis, yAxis: yAxisLayer.axis, settings: guidelinesHighlightLayerSettings, axisValuesX: [ChartAxisValueDouble(0)], axisValuesY: [ChartAxisValueDouble(0)])
+        let guidelinesHighlightLayer = ChartGuideLinesForValuesDottedLayer(xAxis: xAxisLayer.axis, yAxis: yAxisLayer.axis, settings: guidelinesHighlightLayerSettings, axisValuesX: [ChartAxisValueDouble(0)], axisValuesY: [ChartAxisValueDouble(0)], title:"bob", conflicts:0)
         
         let chart = Chart(
             frame: chartFrame,
