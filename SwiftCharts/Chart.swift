@@ -447,16 +447,26 @@ public class ChartView: UIView, UIGestureRecognizerDelegate {
         self.backgroundColor = UIColor.clearColor()
         initRecognizers()
     }
+
+    private var zoomCenter: CGPoint?
     
     @objc func onPinch(sender: UIPinchGestureRecognizer) {
         
         guard let chartSettings = chart?.settings where chartSettings.zoomPan.zoomEnabled else {return}
-        guard sender.numberOfTouches() > 1 else {return}
-        
+
         switch sender.state {
-        case .Began: fallthrough
+        case .Began:
+            zoomCenter = nil
+            fallthrough
+            
         case .Changed:
-            let center = sender.locationInView(self)
+            guard sender.numberOfTouches() > 1 else {return}
+            
+            let center = zoomCenter ?? {
+                let center = sender.locationInView(self)
+                zoomCenter = center
+                return center
+            }()
             
             let x = abs(sender.locationInView(self).x - sender.locationOfTouch(1, inView: self).x)
             let y = abs(sender.locationInView(self).y - sender.locationOfTouch(1, inView: self).y)
@@ -473,12 +483,68 @@ public class ChartView: UIView, UIGestureRecognizerDelegate {
                     return x > y ? (sender.scale, minScale) : (minScale, sender.scale)
                 }
             }()
-            
             chart?.zoom(deltaX: deltaX, deltaY: deltaY, centerX: center.x, centerY: center.y, isGesture: true)
             
-        case .Ended: chart?.onZoomEnd()
-        case .Cancelled: chart?.onZoomEnd()
-        case .Failed: fallthrough
+        case .Ended:
+            guard let center = zoomCenter else {return}
+
+            let adjustBoundsVelocity: CGFloat = 0.2
+            
+            func outOfBoundsOffsets() -> (x: CGFloat?, y: CGFloat?) {
+                let scaleX = chart!.scaleX
+                var x: CGFloat?
+                if scaleX < 1 {
+                    x = min(1 + adjustBoundsVelocity, 1 / scaleX)
+                }
+                if x == 1 {
+                    x = nil
+                }
+
+                let scaleY = chart!.scaleY
+                var y: CGFloat?
+                if scaleY < 1 {
+                    y = min(1 + adjustBoundsVelocity, 1 / scaleY)
+                }
+                if y == 1 {
+                    y = nil
+                }
+                
+                return (x, y)
+            }
+            
+            func adjustBounds() -> Bool {
+                let (xOffsetOpt, yOffsetOpt) = outOfBoundsOffsets()
+                
+                guard (xOffsetOpt != nil || yOffsetOpt != nil) else {
+                    if chart!.scaleX =~ 1 || chart!.scaleY =~ 1 {
+                        self.chart?.pan(deltaX: chart!.scaleX =~ 1 ? -chart!.contentView.frame.minX : 0, deltaY: chart!.scaleY =~ 1 ? -chart!.contentView.frame.minY : 0, isGesture: false, isDeceleration: false)
+                    }
+//                    if chart!.scaleX =~ 1 {
+//                        self.chart?.pan(deltaX: -chart!.contentView.frame.minX, deltaY: 0, isGesture: false, isDeceleration: false)
+//                    }
+                    
+                    return false
+                }
+                
+                dispatch_async(dispatch_get_main_queue()) {
+                    self.chart?.zoom(deltaX: xOffsetOpt ?? 1, deltaY: yOffsetOpt ?? 1, centerX: center.x, centerY: center.y, isGesture: true)
+//                    if let yPan = yPan {
+//                        print("adjusiting pan: \(yPan)")
+//                        self.chart?.pan(deltaX: 0, deltaY: yPan, isGesture: false, isDeceleration: false)
+//                    }
+                    adjustBounds()
+                }
+                return true
+            }
+            
+            adjustBounds()
+            
+            chart?.onZoomEnd()
+
+        case .Cancelled:
+            chart?.onZoomEnd()
+        case .Failed:
+            fallthrough
         case .Possible: break
         }
         
@@ -516,10 +582,10 @@ public class ChartView: UIView, UIGestureRecognizerDelegate {
             
             let location = sender.locationInView(self)
             
-            let deltaX = lastPanTranslation.map{trans.x - $0.x} ?? trans.x
+            var deltaX = lastPanTranslation.map{trans.x - $0.x} ?? trans.x
             let deltaY = lastPanTranslation.map{trans.y - $0.y} ?? trans.y
-            
-            let (finalDeltaX, finalDeltaY) = finalPanDelta(deltaX: deltaX, deltaY: deltaY)
+
+            var (finalDeltaX, finalDeltaY) = finalPanDelta(deltaX: deltaX, deltaY: deltaY)
             
             lastPanTranslation = trans
             
@@ -539,29 +605,76 @@ public class ChartView: UIView, UIGestureRecognizerDelegate {
 
             let location = sender.locationInView(self)
             
-            func next(index: Int, velocityX: CGFloat, velocityY: CGFloat) {
+            func next(velocityX: CGFloat, velocityY: CGFloat) {
                 dispatch_async(dispatch_get_main_queue()) {
                     
                     self.chart?.pan(deltaX: velocityX, deltaY: velocityY, isGesture: true, isDeceleration: true)
                     
                     if abs(velocityX) > 0.1 || abs(velocityY) > 0.1 {
                         let friction: CGFloat = 0.9
-                        next(index + 1, velocityX: velocityX * friction, velocityY: velocityY * friction)
+
+                        next(velocityX * friction, velocityY: velocityY * friction)
+                        
+                    } else {
+                        adjustBounds()
                     }
                 }
             }
+            
+            
+            let adjustBoundsVelocity: CGFloat = 20
+            
+            func outOfBoundsOffsets() -> (x: CGFloat?, y: CGFloat?) {
+                let offset = chart!.contentView.frame.width - (-chart!.contentView.frame.minX + chart!.containerView.frame.width)
+                var x: CGFloat?
+                if chart!.contentView.frame.minX > 0 {
+                    x = max(-adjustBoundsVelocity, -chart!.contentView.frame.minX)
+                } else if chart!.contentView.frame.minX != 0 && offset < 0 { // TODO review if minX check is necessary
+                    x = min(adjustBoundsVelocity, -offset)
+                }
+                
+                let offsetY = chart!.contentView.frame.height - (-chart!.contentView.frame.minY + chart!.containerView.frame.height)
+                var y: CGFloat?
+                if chart!.contentView.frame.minY > 0 {
+                    y = max(-adjustBoundsVelocity, -chart!.contentView.frame.minY)
+                } else if chart!.contentView.frame.minY != 0 && offsetY < 0 { // TODO review if minY check is necessary
+                    y = min(adjustBoundsVelocity, -offsetY)
+                }
+                
+                // Drop possile values < epsilon, this causes endless loop since adding them to the view translation apparently is a no-op
+                let roundDecimals: CGFloat = 1000000000
+                x = x.map{($0 * roundDecimals) / roundDecimals}.flatMap{$0 =~ 0 ? nil : x}
+                y = y.map{($0 * roundDecimals) / roundDecimals}.flatMap{$0 =~ 0 ? nil : y}
+
+                return (x, y)
+            }
+            
+            func adjustBounds() -> Bool {
+                let (xOffsetOpt, yOffsetOpt) = outOfBoundsOffsets()
+                
+                guard (xOffsetOpt != nil || yOffsetOpt != nil) else {return false}
+                    dispatch_async(dispatch_get_main_queue()) {
+                        self.chart?.pan(deltaX: xOffsetOpt ?? 0, deltaY: yOffsetOpt ?? 0, isGesture: true, isDeceleration: true)
+                        adjustBounds()
+                }
+                return true
+            }
+            
             let initFriction: CGFloat = 50
             
-            
             if (chart?.allowPan(location: location, deltaX: finalDeltaX, deltaY: finalDeltaY, isGesture: true, isDeceleration: false)) ?? false {
-                next(0, velocityX: finalDeltaX / initFriction, velocityY: finalDeltaY / initFriction)
+                if !adjustBounds() {
+                    next(finalDeltaX / initFriction, velocityY: finalDeltaY / initFriction)
+                }
             }
             
             chart?.onPanEnd()
             
         case .Cancelled: break;
         case .Failed: break;
-        case .Possible: break;
+        case .Possible:
+//            sender.state = UIGestureRecognizerState.Changed
+            break;
         }
     }
     
@@ -569,3 +682,5 @@ public class ChartView: UIView, UIGestureRecognizerDelegate {
         chart?.onTap(sender.locationInView(self))
     }
 }
+
+//import UIKit.UIGestureRecognizerSubclass
