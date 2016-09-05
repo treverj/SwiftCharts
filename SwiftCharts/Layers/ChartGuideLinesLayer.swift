@@ -184,7 +184,7 @@ public class ChartGuideLinesForValuesDottedLayer_<N>: ChartGuideLinesForValuesLa
             let width: CGFloat = 40.0
             let height: CGFloat = 20.0
             let x = p1.x + ((width+1)*self.conflicts)
-            let y = p1.y+51
+            let y = p1.y
             let label = UILabel(frame: CGRectMake(x, y, width, height))
             label.backgroundColor = UIColor.blackColor()
             label.textColor = UIColor.whiteColor()
