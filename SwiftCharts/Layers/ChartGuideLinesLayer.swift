@@ -191,7 +191,7 @@ public class ChartGuideLinesForValuesDottedLayer_<N>: ChartGuideLinesForValuesLa
             label.font = UIFont(name: "Arial", size: 10)
             label.text = self.title
             label.textAlignment = .Center
-            self.chart?.view.superview?.addSubview(label)
+            self.chart?.view.addSubview(label)
             self.labelDrawn = true
         }
         ChartDrawDottedLine(context: context, p1: p1, p2: p2, width: self.settings.linesWidth, color: self.settings.linesColor, dotWidth: self.settings.dotWidth, dotSpacing: self.settings.dotSpacing)
