@@ -97,12 +97,23 @@ public class ChartGroupedBarsLayer<T: ChartBarModel, U: ChartPointViewBar>: Char
             }
             
             
-            let x = (barViewGroup.first?.frame.origin.x)! - 1
+            let x = (barViewGroup.first?.frame.origin.x)! - (1)
             let y = chart.contentFrame.origin.y
-            let totalBarWidth = barViewGroup.reduce(0) { $0 + $1.frame.width }
-            let width = totalBarWidth + 2
+            
+            // Either this
+            var widestBar: CGFloat = 0
+            for (_,bar) in barViewGroup.enumerate() {
+                if bar.frame.width > widestBar {
+                    widestBar = bar.frame.width
+                }
+            }
+            let totalBarWidth = widestBar * CGFloat(barViewGroup.count)
+            
+            //Or this
+            //let totalBarWidth = barViewGroup.reduce(0) { $0 + $1.frame.width }
+            let width = totalBarWidth + (2)
             let height = chart.frame.height
-            highlightLayer.append(CGRectMake(x, y, width, height))
+            highlightLayer.append(CGRectMake(x, y, CGFloat(width), height))
         }
     }
     
