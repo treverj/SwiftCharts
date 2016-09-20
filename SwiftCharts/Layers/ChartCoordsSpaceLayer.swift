@@ -8,7 +8,7 @@
 
 import UIKit
 
-public class ChartCoordsSpaceLayer: ChartLayerBase {
+open class ChartCoordsSpaceLayer: ChartLayerBase {
     
     let xAxis: ChartAxis
     let yAxis: ChartAxis
@@ -21,49 +21,49 @@ public class ChartCoordsSpaceLayer: ChartLayerBase {
         self.yAxis = yAxis
     }
     
-    public func modelLocToScreenLoc(x x: Double, y: Double) -> CGPoint {
-        return CGPointMake(modelLocToScreenLoc(x: x), modelLocToScreenLoc(y: y))
+    open func modelLocToScreenLoc(x: Double, y: Double) -> CGPoint {
+        return CGPoint(x: modelLocToScreenLoc(x: x), y: modelLocToScreenLoc(y: y))
     }
     
-    public func modelLocToScreenLoc(x x: Double) -> CGFloat {
+    open func modelLocToScreenLoc(x: Double) -> CGFloat {
         return xAxis.innerScreenLocForScalar(x) / (chart?.contentView.transform.a ?? 1)
     }
     
-    public func modelLocToScreenLoc(y y: Double) -> CGFloat {
+    open func modelLocToScreenLoc(y: Double) -> CGFloat {
         return yAxis.innerScreenLocForScalar(y) / (chart?.contentView.transform.d ?? 1)
     }
     
-    public func scalarForScreenLoc(x x: CGFloat) -> Double {
+    open func scalarForScreenLoc(x: CGFloat) -> Double {
         return xAxis.innerScalarForScreenLoc(x * (chart?.contentView.transform.a ?? 1))
     }
     
-    public func scalarForScreenLoc(y y: CGFloat) -> Double {
+    open func scalarForScreenLoc(y: CGFloat) -> Double {
         return yAxis.innerScalarForScreenLoc(y * (chart?.contentView.transform.d ?? 1))
     }
     
-    public func globalToDrawersContainerCoordinates(point: CGPoint) -> CGPoint? {
+    open func globalToDrawersContainerCoordinates(_ point: CGPoint) -> CGPoint? {
         guard let chart = chart else {return nil}
         return point.substract(chart.containerView.frame.origin)
     }
     
-    public func containerToGlobalCoordinates(point: CGPoint) -> CGPoint? {
+    open func containerToGlobalCoordinates(_ point: CGPoint) -> CGPoint? {
         guard let chart = chart else {return nil}
         return point.add(chart.containerView.frame.origin)
     }
 
-    public func contentToContainerCoordinates(point: CGPoint) -> CGPoint? {
+    open func contentToContainerCoordinates(_ point: CGPoint) -> CGPoint? {
         guard let chart = chart else {return nil}
         let containerX = (point.x * chart.contentView.transform.a) + chart.contentView.frame.minX
         let containerY = (point.y * chart.contentView.transform.d) + chart.contentView.frame.minY
-        return CGPointMake(containerX, containerY)
+        return CGPoint(x: containerX, y: containerY)
     }
     
-    public func contentToGlobalCoordinates(point: CGPoint) -> CGPoint? {
+    open func contentToGlobalCoordinates(_ point: CGPoint) -> CGPoint? {
         return contentToContainerCoordinates(point).flatMap{containerToGlobalCoordinates($0)}
     }
     
-    public func containerToGlobalScreenLoc(chartPoint: ChartPoint) -> CGPoint? {
-        let containerScreenLoc = CGPointMake(modelLocToScreenLoc(x: chartPoint.x.scalar), modelLocToScreenLoc(y: chartPoint.y.scalar))
+    open func containerToGlobalScreenLoc(_ chartPoint: ChartPoint) -> CGPoint? {
+        let containerScreenLoc = CGPoint(x: modelLocToScreenLoc(x: chartPoint.x.scalar), y: modelLocToScreenLoc(y: chartPoint.y.scalar))
         return containerToGlobalCoordinates(containerScreenLoc)
     }
 }

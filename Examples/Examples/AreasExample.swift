@@ -11,7 +11,7 @@ import SwiftCharts
 
 class AreasExample: UIViewController {
 
-    private var chart: Chart? // arc
+    fileprivate var chart: Chart? // arc
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -22,10 +22,10 @@ class AreasExample: UIViewController {
         let chartPoints2 = [(0, 150), (2, 100), (4, 200), (6, 60)].map{ChartPoint(x: ChartAxisValueInt($0.0, labelSettings: labelSettings), y: ChartAxisValueInt($0.1))}
         let chartPoints3 = [(0, 200), (2, 210), (4, 260), (6, 290)].map{ChartPoint(x: ChartAxisValueInt($0.0, labelSettings: labelSettings), y: ChartAxisValueInt($0.1))}
         
-        let allChartPoints = (chartPoints1 + chartPoints2 + chartPoints3).sort {(obj1, obj2) in return obj1.x.scalar < obj2.x.scalar}
+        let allChartPoints = (chartPoints1 + chartPoints2 + chartPoints3).sorted {(obj1, obj2) in return obj1.x.scalar < obj2.x.scalar}
         
         let xValues: [ChartAxisValue] = (NSOrderedSet(array: allChartPoints).array as! [ChartPoint]).map{$0.x}
-        let yValues = ChartAxisValuesStaticGenerator.generateYAxisValuesWithChartPoints(allChartPoints, minSegmentCount: 5, maxSegmentCount: 20, multiple: 50, axisValueGenerator: {ChartAxisValueDouble($0, labelSettings: labelSettings)}, addPaddingSegmentIfEdge: false)
+        let yValues = ChartAxisValuesStaticGenerator.generateYAxisValuesWithChartPoints(chartPoints: allChartPoints, minSegmentCount: 5, maxSegmentCount: 20, multiple: 50, axisValueGenerator: {ChartAxisValueDouble($0, labelSettings: labelSettings)}, addPaddingSegmentIfEdge: false)
         
         let xModel = ChartAxisModel(axisValues: xValues, axisTitleLabel: ChartAxisLabel(text: "Axis title", settings: labelSettings))
         let yModel = ChartAxisModel(axisValues: yValues, axisTitleLabel: ChartAxisLabel(text: "Axis title", settings: labelSettings.defaultVertical()))
@@ -46,9 +46,9 @@ class AreasExample: UIViewController {
         let chartPointsLayer2 = ChartPointsAreaLayer(xAxis: xAxisLayer.axis, yAxis: yAxisLayer.axis, innerFrame: innerFrame, chartPoints: chartPoints2, areaColor: c2, animDuration: 3, animDelay: 0, addContainerPoints: true)
         let chartPointsLayer3 = ChartPointsAreaLayer(xAxis: xAxisLayer.axis, yAxis: yAxisLayer.axis, innerFrame: innerFrame, chartPoints: chartPoints3, areaColor: c3, animDuration: 3, animDelay: 0, addContainerPoints: true)
         
-        let lineModel1 = ChartLineModel(chartPoints: chartPoints1, lineColor: UIColor.blackColor(), animDuration: 1, animDelay: 0)
-        let lineModel2 = ChartLineModel(chartPoints: chartPoints2, lineColor: UIColor.blackColor(), animDuration: 1, animDelay: 0)
-        let lineModel3 = ChartLineModel(chartPoints: chartPoints3, lineColor: UIColor.blackColor(), animDuration: 1, animDelay: 0)
+        let lineModel1 = ChartLineModel(chartPoints: chartPoints1, lineColor: UIColor.black, animDuration: 1, animDelay: 0)
+        let lineModel2 = ChartLineModel(chartPoints: chartPoints2, lineColor: UIColor.black, animDuration: 1, animDelay: 0)
+        let lineModel3 = ChartLineModel(chartPoints: chartPoints3, lineColor: UIColor.black, animDuration: 1, animDelay: 0)
         
         let chartPointsLineLayer = ChartPointsLineLayer(xAxis: xAxisLayer.axis, yAxis: yAxisLayer.axis, lineModels: [lineModel1, lineModel2, lineModel3])
         
@@ -83,41 +83,41 @@ class AreasExample: UIViewController {
                     return attempt
                 }()
                 
-                let frame = CGRectMake(x, screenLoc.y - (h + (Env.iPad ? 30 : 12)), w, h)
+                let frame = CGRect(x: x, y: screenLoc.y - (h + (Env.iPad ? 30 : 12)), width: w, height: h)
                 
-                let bubbleView = InfoBubble(point: screenLoc, frame: frame, arrowWidth: Env.iPad ? 40 : 28, arrowHeight: Env.iPad ? 20 : 14, bgColor: UIColor.blackColor(), arrowX: screenLoc.x - x, arrowY: -1) // TODO don't calculate this here
+                let bubbleView = InfoBubble(point: screenLoc, frame: frame, arrowWidth: Env.iPad ? 40 : 28, arrowHeight: Env.iPad ? 20 : 14, bgColor: UIColor.black, arrowX: screenLoc.x - x, arrowY: -1) // TODO don't calculate this here
                 chart.addSubview(bubbleView)
                 
-                bubbleView.transform = CGAffineTransformConcat(CGAffineTransformMakeScale(0, 0), CGAffineTransformMakeTranslation(0, 100))
-                let infoView = UILabel(frame: CGRectMake(0, 10, w, h - 30))
-                infoView.textColor = UIColor.whiteColor()
-                infoView.backgroundColor = UIColor.blackColor()
+                bubbleView.transform = CGAffineTransform(scaleX: 0, y: 0).concatenating(CGAffineTransform(translationX: 0, y: 100))
+                let infoView = UILabel(frame: CGRect(x: 0, y: 10, width: w, height: h - 30))
+                infoView.textColor = UIColor.white
+                infoView.backgroundColor = UIColor.black
                 infoView.text = "Some text about \(chartPoint)"
                 infoView.font = ExamplesDefaults.fontWithSize(Env.iPad ? 14 : 12)
-                infoView.textAlignment = NSTextAlignment.Center
+                infoView.textAlignment = NSTextAlignment.center
                 
                 bubbleView.addSubview(infoView)
                 popups.append(bubbleView)
                 
-                UIView.animateWithDuration(0.2, delay: 0, options: UIViewAnimationOptions(), animations: {
+                UIView.animate(withDuration: 0.2, delay: 0, options: UIViewAnimationOptions(), animations: {
                     view.selected = true
                     selectedView = view
                     
-                    bubbleView.transform = CGAffineTransformIdentity
+                    bubbleView.transform = CGAffineTransform.identity
                     }, completion: {finished in})
             }
 
             func targetState() {
                 let w: CGFloat = v.frame.size.width
                 let h: CGFloat = v.frame.size.height
-                let frame = CGRectMake(screenLoc.x - (w/2), screenLoc.y - (h/2), w, h)
+                let frame = CGRect(x: screenLoc.x - (w/2), y: screenLoc.y - (h/2), width: w, height: h)
                 v.frame = frame
             }
             
             if isTransform {
                 targetState()
             } else {
-                UIView.animateWithDuration(0.7, delay: 0, usingSpringWithDamping: 0.6, initialSpringVelocity: 0, options: UIViewAnimationOptions(), animations: {
+                UIView.animate(withDuration: 0.7, delay: 0, usingSpringWithDamping: 0.6, initialSpringVelocity: 0, options: UIViewAnimationOptions(), animations: {
                     targetState()
                     }, completion: nil)
             }
@@ -132,7 +132,7 @@ class AreasExample: UIViewController {
         
         let chartPointsCircleLayer3 = ChartPointsViewsLayer(xAxis: xAxisLayer.axis, yAxis: yAxisLayer.axis, chartPoints: chartPoints3, viewGenerator: circleViewGenerator, displayDelay: 2.7, delayBetweenItems: itemsDelay)
         
-        let settings = ChartGuideLinesDottedLayerSettings(linesColor: UIColor.blackColor(), linesWidth: ExamplesDefaults.guidelinesWidth)
+        let settings = ChartGuideLinesDottedLayerSettings(linesColor: UIColor.black, linesWidth: ExamplesDefaults.guidelinesWidth)
         let guidelinesLayer = ChartGuideLinesDottedLayer(xAxisLayer: xAxisLayer, yAxisLayer: yAxisLayer, settings: settings)
         
         let chart = Chart(

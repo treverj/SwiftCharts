@@ -9,19 +9,19 @@
 import UIKit
 
 /// Runs a series of animations on a view
-public class ChartViewAnimators {
+open class ChartViewAnimators {
     
-    public var animDelay: Float = 0
-    public var animDuration: Float = 0.3
-    public var animDamping: CGFloat = 0.4
-    public var animInitSpringVelocity: CGFloat = 0.5
+    open var animDelay: Float = 0
+    open var animDuration: Float = 0.3
+    open var animDamping: CGFloat = 0.4
+    open var animInitSpringVelocity: CGFloat = 0.5
     
-    private let animators: [ChartViewAnimator]
+    fileprivate let animators: [ChartViewAnimator]
     
-    private let onFinishAnimations: (() -> Void)?
-    private let onFinishInverts: (() -> Void)?
+    fileprivate let onFinishAnimations: (() -> Void)?
+    fileprivate let onFinishInverts: (() -> Void)?
     
-    private let view: UIView
+    fileprivate let view: UIView
     
     public init(view: UIView, animators: ChartViewAnimator..., onFinishAnimations: (() -> Void)? = nil, onFinishInverts: (() -> Void)? = nil) {
         self.view = view
@@ -30,7 +30,7 @@ public class ChartViewAnimators {
         self.onFinishInverts = onFinishInverts
     }
     
-    public func animate() {
+    open func animate() {
         for animator in animators {
             animator.prepare(view)
         }
@@ -44,7 +44,7 @@ public class ChartViewAnimators {
         })
     }
     
-    public func invert() {
+    open func invert() {
         animate({
             for animator in self.animators {
                 animator.invert(self.view)
@@ -54,8 +54,8 @@ public class ChartViewAnimators {
         })
     }
     
-    private func animate(animations: () -> Void, onFinish: () -> Void) {
-        UIView.animateWithDuration(NSTimeInterval(animDuration), delay: NSTimeInterval(animDelay), usingSpringWithDamping: animDamping, initialSpringVelocity: animInitSpringVelocity, options: UIViewAnimationOptions(), animations: {
+    fileprivate func animate(_ animations: @escaping () -> Void, onFinish: @escaping () -> Void) {
+        UIView.animate(withDuration: TimeInterval(animDuration), delay: TimeInterval(animDelay), usingSpringWithDamping: animDamping, initialSpringVelocity: animInitSpringVelocity, options: UIViewAnimationOptions(), animations: {
             animations()
             }, completion: {finished in
                 if finished {

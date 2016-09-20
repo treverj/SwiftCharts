@@ -11,13 +11,13 @@ import SwiftCharts
 
 class GroupedBarsExample: UIViewController {
 
-    private var chart: Chart?
-    private var shadowView: UIView?
-    private var lineView: UIView?
+    fileprivate var chart: Chart?
+    fileprivate var shadowView: UIView?
+    fileprivate var lineView: UIView?
 
-    private let dirSelectorHeight: CGFloat = 50
+    fileprivate let dirSelectorHeight: CGFloat = 50
 
-    private func barsChart(horizontal horizontal: Bool) -> Chart {
+    fileprivate func barsChart(horizontal: Bool) -> Chart {
         let labelSettings = ChartLabelSettings(font: ExamplesDefaults.labelFont)
         
         let groupsData: [(title: String, [(min: Double, max: Double)])] = [
@@ -83,28 +83,28 @@ class GroupedBarsExample: UIViewController {
                 ])
         ]
         
-        let groupColors = [UIColor.redColor().colorWithAlphaComponent(0.6), UIColor.blueColor().colorWithAlphaComponent(0.6), UIColor.greenColor().colorWithAlphaComponent(0.6)]
+        let groupColors = [UIColor.red.withAlphaComponent(0.6), UIColor.blue.withAlphaComponent(0.6), UIColor.green.withAlphaComponent(0.6)]
         
-        let groups: [ChartPointsBarGroup] = groupsData.enumerate().map {index, entry in
+        let groups: [ChartPointsBarGroup] = groupsData.enumerated().map {index, entry in
             let constant = ChartAxisValueDouble(index)
-            let bars = entry.1.enumerate().map {index, tuple in
+            let bars = entry.1.enumerated().map {index, tuple in
                 ChartBarModel(constant: constant, axisValue1: ChartAxisValueDouble(tuple.min), axisValue2: ChartAxisValueDouble(tuple.max), bgColor: groupColors[index])
             }
             return ChartPointsBarGroup(constant: constant, bars: bars)
         }
         
         let (axisValues1, axisValues2): ([ChartAxisValue], [ChartAxisValue]) = (
-            0.stride(through: 60, by: 5).map {ChartAxisValueDouble(Double($0), labelSettings: labelSettings)},
+            stride(from: 0, through: 60, by: 5).map {ChartAxisValueDouble(Double($0), labelSettings: labelSettings)},
             [ChartAxisValueString(order: -1)] +
-                groupsData.enumerate().map {index, tuple in ChartAxisValueString(tuple.0, order: index, labelSettings: labelSettings)} +
+                groupsData.enumerated().map {index, tuple in ChartAxisValueString(tuple.0, order: index, labelSettings: labelSettings)} +
                 [ChartAxisValueString(order: groupsData.count)]
         )
         let (xValues, yValues) = horizontal ? (axisValues1, axisValues2) : (axisValues2, axisValues1)
         
-        let xModel = ChartAxisModel(axisValues: xValues, lineColor: UIColor.clearColor(), axisTitleLabel: ChartAxisLabel(text: "Axis title", settings: labelSettings))
+        let xModel = ChartAxisModel(axisValues: xValues, lineColor: UIColor.clear, axisTitleLabel: ChartAxisLabel(text: "Axis title", settings: labelSettings))
         let yModel = ChartAxisModel(axisValues: yValues, axisTitleLabel: ChartAxisLabel(text: "Axis title", settings: labelSettings.defaultVertical()))
         let frame = ExamplesDefaults.chartFrame(self.view.bounds)
-        let chartFrame = self.chart?.frame ?? CGRectMake(frame.origin.x, frame.origin.y, frame.size.width, frame.size.height - self.dirSelectorHeight)
+        let chartFrame = self.chart?.frame ?? CGRect(x: frame.origin.x, y: frame.origin.y, width: frame.size.width, height: frame.size.height - self.dirSelectorHeight)
         
         let chartSettings = ExamplesDefaults.chartSettingsWithPanZoom
 
@@ -116,12 +116,12 @@ class GroupedBarsExample: UIViewController {
             
             if ((self.shadowView == nil)){
                 let test = UIView(frame: tappedGroupBar.layer.highlightLayer[tappedGroupBar.groupIndex])
-                test.backgroundColor = UIColor.blackColor().colorWithAlphaComponent(0.5)
+                test.backgroundColor = UIColor.black.withAlphaComponent(0.5)
                 self.shadowView = test
                 self.chart?.addSubview(self.shadowView!)
             }
             else {
-                UIView.animateWithDuration(CFTimeInterval(0.1), delay: 0, options: .CurveEaseOut, animations: {
+                UIView.animate(withDuration: CFTimeInterval(0.1), delay: 0, options: .curveEaseOut, animations: {
                     self.shadowView?.frame = tappedGroupBar.layer.highlightLayer[tappedGroupBar.groupIndex]
                     self.view.layoutIfNeeded()
                     }, completion: nil)
@@ -135,15 +135,15 @@ class GroupedBarsExample: UIViewController {
 //        let lineModel = ChartLineModel(chartPoints: lineChartPoints, lineColor: UIColor.blackColor(), lineWidth: 2, animDuration: 0.5, animDelay: 1)
 //        let lineLayer = ChartPointsLineLayer(xAxis: xAxisLayer.axis, yAxis: yAxisLayer.axis, lineModels: [lineModel])
         
-        let guidelinesHighlightLayerSettings = ChartGuideLinesDottedLayerSettings(linesColor: UIColor.blackColor(), linesWidth: 1, dotWidth: 4, dotSpacing: 4)
+        let guidelinesHighlightLayerSettings = ChartGuideLinesDottedLayerSettings(linesColor: UIColor.black, linesWidth: 1, dotWidth: 4, dotSpacing: 4)
         let guidelinesHighlightLayer = ChartGuideLinesForValuesDottedLayer(xAxis: xAxisLayer.axis, yAxis: yAxisLayer.axis, settings: guidelinesHighlightLayerSettings, axisValuesX: [], axisValuesY: [ChartAxisValueDouble(20)], title: "Protein", conflicts: 0)
         
         let guidelinesHighlightLayer2 = ChartGuideLinesForValuesDottedLayer(xAxis: xAxisLayer.axis, yAxis: yAxisLayer.axis, settings: guidelinesHighlightLayerSettings, axisValuesX: [], axisValuesY: [ChartAxisValueDouble(19)], title: "Carbs", conflicts: 1)
         
         let lineX = yAxisLayer.frame.origin.x + yAxisLayer.frame.width - 1
         let lineY = yAxisLayer.frame.origin.y + 60
-        let lineView = UIView(frame: CGRectMake(lineX, lineY, 2, yAxisLayer.frame.height))
-        lineView.backgroundColor = UIColor.redColor()
+        let lineView = UIView(frame: CGRect(x: lineX, y: lineY, width: 2, height: yAxisLayer.frame.height))
+        lineView.backgroundColor = UIColor.red
         self.lineView = lineView
         
         
@@ -163,7 +163,7 @@ class GroupedBarsExample: UIViewController {
     }
     
     
-    private func showChart(horizontal horizontal: Bool) {
+    fileprivate func showChart(horizontal: Bool) {
         self.chart?.clearView()
         
         let chart = self.barsChart(horizontal: horizontal)
@@ -175,7 +175,7 @@ class GroupedBarsExample: UIViewController {
     override func viewDidLoad() {
         self.showChart(horizontal: false)
         if let chart = self.chart {
-            let dirSelector = DirSelector(frame: CGRectMake(0, chart.frame.origin.y + chart.frame.size.height, self.view.frame.size.width, self.dirSelectorHeight), controller: self)
+            let dirSelector = DirSelector(frame: CGRect(x: 0, y: chart.frame.origin.y + chart.frame.size.height, width: self.view.frame.size.width, height: self.dirSelectorHeight), controller: self)
             self.view.addSubview(dirSelector)
         }
     }
@@ -187,16 +187,16 @@ class GroupedBarsExample: UIViewController {
         
         weak var controller: GroupedBarsExample?
         
-        private let buttonDirs: [UIButton : Bool]
+        fileprivate let buttonDirs: [UIButton : Bool]
         
         init(frame: CGRect, controller: GroupedBarsExample) {
             
             self.controller = controller
             
             self.horizontal = UIButton()
-            self.horizontal.setTitle("Horizontal", forState: .Normal)
+            self.horizontal.setTitle("Horizontal", for: UIControlState())
             self.vertical = UIButton()
-            self.vertical.setTitle("Vertical", forState: .Normal)
+            self.vertical.setTitle("Vertical", for: UIControlState())
             
             self.buttonDirs = [self.horizontal : true, self.vertical : false]
             
@@ -207,12 +207,12 @@ class GroupedBarsExample: UIViewController {
             
             for button in [self.horizontal, self.vertical] {
                 button.titleLabel?.font = ExamplesDefaults.fontWithSize(14)
-                button.setTitleColor(UIColor.blueColor(), forState: .Normal)
-                button.addTarget(self, action: #selector(DirSelector.buttonTapped(_:)), forControlEvents: .TouchUpInside)
+                button.setTitleColor(UIColor.blue, for: UIControlState())
+                button.addTarget(self, action: #selector(DirSelector.buttonTapped(_:)), for: .touchUpInside)
             }
         }
         
-        func buttonTapped(sender: UIButton) {
+        func buttonTapped(_ sender: UIButton) {
             let horizontal = sender == self.horizontal ? true : false
             controller?.showChart(horizontal: horizontal)
         }
@@ -223,7 +223,7 @@ class GroupedBarsExample: UIViewController {
                 v.translatesAutoresizingMaskIntoConstraints = false
             }
             
-            let namedViews = views.enumerate().map{index, view in
+            let namedViews = views.enumerated().map{index, view in
                 ("v\(index)", view)
             }
             
@@ -238,9 +238,9 @@ class GroupedBarsExample: UIViewController {
                 "\(str)-(\(buttonsSpace))-[\(tuple.0)]"
             }
             
-            let vConstraits = namedViews.flatMap {NSLayoutConstraint.constraintsWithVisualFormat("V:|[\($0.0)]", options: NSLayoutFormatOptions(), metrics: nil, views: viewsDict)}
+            let vConstraits = namedViews.flatMap {NSLayoutConstraint.constraints(withVisualFormat: "V:|[\($0.0)]", options: NSLayoutFormatOptions(), metrics: nil, views: viewsDict)}
             
-            self.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat(hConstraintStr, options: NSLayoutFormatOptions(), metrics: nil, views: viewsDict)
+            self.addConstraints(NSLayoutConstraint.constraints(withVisualFormat: hConstraintStr, options: NSLayoutFormatOptions(), metrics: nil, views: viewsDict)
                 + vConstraits)
         }
         

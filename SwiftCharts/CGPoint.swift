@@ -10,27 +10,27 @@ import UIKit
 
 extension CGPoint {
 
-    func distance(point: CGPoint) -> CGFloat {
+    func distance(_ point: CGPoint) -> CGFloat {
         return CGFloat(hypotf(Float(x) - Float(point.x), Float(y) - Float(point.y)))
     }
     
-    func add(point: CGPoint) -> CGPoint {
+    func add(_ point: CGPoint) -> CGPoint {
         return offset(x: point.x, y: point.y)
     }
     
-    func substract(point: CGPoint) -> CGPoint {
+    func substract(_ point: CGPoint) -> CGPoint {
         return offset(x: -point.x, y: -point.y)
     }
     
-    func offset(x x: CGFloat = 0, y: CGFloat = 0) -> CGPoint {
-        return CGPointMake(self.x + x, self.y + y)
+    func offset(x: CGFloat = 0, y: CGFloat = 0) -> CGPoint {
+        return CGPoint(x: self.x + x, y: self.y + y)
     }
     
-    func surroundingRect(size: CGFloat) -> CGRect {
-        return CGRectMake(x - size / 2, y - size / 2, size, size)
+    func surroundingRect(_ size: CGFloat) -> CGRect {
+        return CGRect(x: x - size / 2, y: y - size / 2, width: size, height: size)
     }
     
-    func nearest(intersections: [CGPoint]) -> (distance: CGFloat, point: CGPoint)? {
+    func nearest(_ intersections: [CGPoint]) -> (distance: CGFloat, point: CGPoint)? {
         var minDistancePoint: (distance: CGFloat, point: CGPoint)? = nil
         for intersection in intersections {
             let dist = distance(intersection)

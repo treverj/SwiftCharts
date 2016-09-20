@@ -8,53 +8,53 @@
 
 import UIKit
 
-public class ChartAxisX: ChartAxis {
+open class ChartAxisX: ChartAxis {
     
-    public override var length: Double {
+    open override var length: Double {
         return last - first
     }
     
-    public override var screenLength: CGFloat {
+    open override var screenLength: CGFloat {
         return lastScreen - firstScreen
     }
 
-    public override var screenLengthInit: CGFloat {
+    open override var screenLengthInit: CGFloat {
         return lastScreenInit - firstScreenInit
     }
     
-    public override var visibleLength: Double {
+    open override var visibleLength: Double {
         return lastVisible - firstVisible
     }
     
-    public override var visibleScreenLength: CGFloat {
+    open override var visibleScreenLength: CGFloat {
         return lastVisibleScreen - firstVisibleScreen
     }
     
-    public override func screenLocForScalar(scalar: Double) -> CGFloat {
+    open override func screenLocForScalar(_ scalar: Double) -> CGFloat {
         return firstScreen + internalScreenLocForScalar(scalar)
     }
     
-    public override func innerScreenLocForScalar(scalar: Double) -> CGFloat {
+    open override func innerScreenLocForScalar(_ scalar: Double) -> CGFloat {
         return internalScreenLocForScalar(scalar)
     }
     
-    public override func scalarForScreenLoc(screenLoc: CGFloat) -> Double {
+    open override func scalarForScreenLoc(_ screenLoc: CGFloat) -> Double {
         return Double((screenLoc - firstScreen) * modelToScreenRatio) + first
     }
     
-    public override func innerScalarForScreenLoc(screenLoc: CGFloat) -> Double {
+    open override func innerScalarForScreenLoc(_ screenLoc: CGFloat) -> Double {
         return Double(screenLoc * modelToScreenRatio) + first
     }
     
-    public override var firstModelValueInBounds: Double {
+    open override var firstModelValueInBounds: Double {
         return firstVisible + screenToModelLength(fixedPaddingFirstScreen ?? paddingFirstScreen)
     }
     
-    public override var lastModelValueInBounds: Double {
+    open override var lastModelValueInBounds: Double {
         return lastVisible - screenToModelLength(fixedPaddingLastScreen ?? paddingLastScreen)
     }
 
-    override func zoom(x: CGFloat, y: CGFloat, centerX: CGFloat, centerY: CGFloat) {
+    override func zoom(_ x: CGFloat, y: CGFloat, centerX: CGFloat, centerY: CGFloat) {
         
         // Zoom around center of gesture. Uses center as anchor point dividing the line in 2 segments which are scaled proportionally.
         let segment1 = centerX - firstScreen
@@ -94,7 +94,7 @@ public class ChartAxisX: ChartAxis {
     }
     
     
-    override func pan(deltaX: CGFloat, deltaY: CGFloat) {
+    override func pan(_ deltaX: CGFloat, deltaY: CGFloat) {
         
         let length = screenLength
         
@@ -119,15 +119,15 @@ public class ChartAxisX: ChartAxis {
         lastScreen = newEndX
     }
     
-    override func zoom(scaleX: CGFloat, scaleY: CGFloat, centerX: CGFloat, centerY: CGFloat) {
+    override func zoom(_ scaleX: CGFloat, scaleY: CGFloat, centerX: CGFloat, centerY: CGFloat) {
         zoom(scaleX / CGFloat(zoomFactor), y: scaleY, centerX: centerX, centerY: centerY)
     }
  
-    override func toModelInner(screenLoc: CGFloat) -> Double {
+    override func toModelInner(_ screenLoc: CGFloat) -> Double {
         return Double(screenLoc - firstScreenInit - paddingFirstScreen) * innerRatio + firstInit
     }
     
-    override func isInBoundaries(screenCenter: CGFloat, screenSize: CGSize) -> Bool {
+    override func isInBoundaries(_ screenCenter: CGFloat, screenSize: CGSize) -> Bool {
         return screenCenter - screenSize.width / 2 >= firstVisibleScreen && screenCenter + screenSize.width / 2 <= lastVisibleScreen
     }
     
