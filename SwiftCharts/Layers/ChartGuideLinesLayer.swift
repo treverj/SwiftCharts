@@ -188,7 +188,7 @@ open class ChartGuideLinesForValuesDottedLayer_<N>: ChartGuideLinesForValuesLaye
             let label = UILabel(frame: CGRect(x: x, y: y, width: width, height: height))
             label.backgroundColor = UIColor.black
             label.textColor = UIColor.white
-            label.font = UIFont(name: "Arial", size: 10)
+            label.font = UIFont.systemFont(ofSize: 10)
             label.text = self.title
             label.textAlignment = .center
             self.chart?.view.addSubview(label)
