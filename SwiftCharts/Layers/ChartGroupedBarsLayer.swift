@@ -97,7 +97,7 @@ open class ChartGroupedBarsLayer<T: ChartBarModel, U: ChartPointViewBar>: ChartC
             }
             
             
-            let x = (barViewGroup.first?.frame.origin.x)! - (1)
+            let x = (barViewGroup.first?.frame.origin.x)! - (totalBarWidth / 9)
             let y = chart.contentFrame.origin.y
             
             // Either this
@@ -111,7 +111,7 @@ open class ChartGroupedBarsLayer<T: ChartBarModel, U: ChartPointViewBar>: ChartC
             
             //Or this
             //let totalBarWidth = barViewGroup.reduce(0) { $0 + $1.frame.width }
-            let width = totalBarWidth + (2)
+            let width = totalBarWidth + (totalBarWidth / 4.5)
             let height = chart.frame.height
             highlightLayer.append(CGRect(x: x, y: y, width: CGFloat(width), height: height))
         }
