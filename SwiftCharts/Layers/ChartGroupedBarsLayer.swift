@@ -96,10 +96,6 @@ open class ChartGroupedBarsLayer<T: ChartBarModel, U: ChartPointViewBar>: ChartC
                 barViewGroup.append(barView)
             }
             
-            
-            let x = (barViewGroup.first?.frame.origin.x)! - (totalBarWidth / 9)
-            let y = chart.contentFrame.origin.y
-            
             // Either this
             var widestBar: CGFloat = 0
             for (_,bar) in barViewGroup.enumerated() {
@@ -108,6 +104,9 @@ open class ChartGroupedBarsLayer<T: ChartBarModel, U: ChartPointViewBar>: ChartC
                 }
             }
             let totalBarWidth = widestBar * CGFloat(barViewGroup.count)
+            
+            let x = (barViewGroup.first?.frame.origin.x)! - (totalBarWidth / 9)
+            let y = chart.contentFrame.origin.y
             
             //Or this
             //let totalBarWidth = barViewGroup.reduce(0) { $0 + $1.frame.width }
