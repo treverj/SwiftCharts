@@ -181,7 +181,7 @@ open class ChartGuideLinesForValuesDottedLayer_<N>: ChartGuideLinesForValuesLaye
     
     override fileprivate func drawGuideline(_ context: CGContext, p1: CGPoint, p2: CGPoint) {
         if (!self.labelDrawn) {
-            let width: CGFloat = 40.0
+            let width = (self.title.size(UIFont.systemFont(ofSize: 10))).width + 4.0
             let height: CGFloat = 20.0
             let x = p1.x + ((width+1)*self.conflicts)
             let y = p1.y
