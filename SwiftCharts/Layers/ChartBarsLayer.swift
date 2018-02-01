@@ -8,11 +8,11 @@
 
 import UIKit
 
-public class ChartBarModel {
-    public let constant: ChartAxisValue
-    public let axisValue1: ChartAxisValue
-    public let axisValue2: ChartAxisValue
-    public let bgColor: UIColor?
+open class ChartBarModel {
+    open let constant: ChartAxisValue
+    open let axisValue1: ChartAxisValue
+    open let axisValue2: ChartAxisValue
+    open let bgColor: UIColor?
 
     /**
     - parameter constant:Value of coordinate which doesn't change between start and end of the bar - if the bar is horizontal, this is y, if it's vertical it's x.
@@ -40,27 +40,27 @@ class ChartBarsViewGenerator<T: ChartBarModel, U: ChartPointViewBar> {
         self.barWidth = barWidth
     }
     
-    func viewPoints(barModel: T, constantScreenLoc: CGFloat) -> (p1: CGPoint, p2: CGPoint) {
+    func viewPoints(_ barModel: T, constantScreenLoc: CGFloat) -> (p1: CGPoint, p2: CGPoint) {
 
         
         switch self.horizontal {
         case true:
             return (
-                CGPointMake(layer.modelLocToScreenLoc(x: barModel.axisValue1.scalar), constantScreenLoc),
-                CGPointMake(layer.modelLocToScreenLoc(x: barModel.axisValue2.scalar), constantScreenLoc))
+                CGPoint(x: layer.modelLocToScreenLoc(x: barModel.axisValue1.scalar), y: constantScreenLoc),
+                CGPoint(x: layer.modelLocToScreenLoc(x: barModel.axisValue2.scalar), y: constantScreenLoc))
         case false:
             return (
-                CGPointMake(constantScreenLoc, layer.modelLocToScreenLoc(y: barModel.axisValue1.scalar)),
-                CGPointMake(constantScreenLoc, layer.modelLocToScreenLoc(y: barModel.axisValue2.scalar)))
+                CGPoint(x: constantScreenLoc, y: layer.modelLocToScreenLoc(y: barModel.axisValue1.scalar)),
+                CGPoint(x: constantScreenLoc, y: layer.modelLocToScreenLoc(y: barModel.axisValue2.scalar)))
         }
     }
     
-    func constantScreenLoc(barModel: T) -> CGFloat {
+    func constantScreenLoc(_ barModel: T) -> CGFloat {
         return horizontal ? layer.modelLocToScreenLoc(y: barModel.constant.scalar) : layer.modelLocToScreenLoc(x: barModel.constant.scalar)
     }
     
     // constantScreenLoc: (screen) coordinate that is equal in p1 and p2 - for vertical bar this is the x coordinate, for horizontal bar this is the y coordinate
-    func generateView(barModel: T, constantScreenLoc constantScreenLocMaybe: CGFloat? = nil, bgColor: UIColor?, animDuration: Float, chart: Chart? = nil) -> U {
+    func generateView(_ barModel: T, constantScreenLoc constantScreenLocMaybe: CGFloat? = nil, bgColor: UIColor?, animDuration: Float, chart: Chart? = nil) -> U {
         
         let constantScreenLoc = constantScreenLocMaybe ?? self.constantScreenLoc(barModel)
         
@@ -76,17 +76,17 @@ public struct ChartTappedBar {
     public let layer: ChartCoordsSpaceLayer
 }
 
-public class ChartBarsLayer: ChartCoordsSpaceLayer {
-    private let bars: [ChartBarModel]
-    private let barWidth: CGFloat
-    private let horizontal: Bool
-    private let animDuration: Float
+open class ChartBarsLayer: ChartCoordsSpaceLayer {
+    fileprivate let bars: [ChartBarModel]
+    fileprivate let barWidth: CGFloat
+    fileprivate let horizontal: Bool
+    fileprivate let animDuration: Float
 
-    private var barViews: [UIView] = []
+    fileprivate var barViews: [UIView] = []
     
-    private var tapHandler: (ChartTappedBar -> Void)?
+    fileprivate var tapHandler: ((ChartTappedBar) -> Void)?
     
-    public init(xAxis: ChartAxis, yAxis: ChartAxis, bars: [ChartBarModel], horizontal: Bool = false, barWidth: CGFloat, animDuration: Float, tapHandler: (ChartTappedBar -> Void)? = nil) {
+    public init(xAxis: ChartAxis, yAxis: ChartAxis, bars: [ChartBarModel], horizontal: Bool = false, barWidth: CGFloat, animDuration: Float, tapHandler: ((ChartTappedBar) -> Void)? = nil) {
         self.bars = bars
         self.horizontal = horizontal
         self.barWidth = barWidth
@@ -96,7 +96,7 @@ public class ChartBarsLayer: ChartCoordsSpaceLayer {
         super.init(xAxis: xAxis, yAxis: yAxis)
     }
     
-    public override func chartInitialized(chart chart: Chart) {
+    open override func chartInitialized(chart: Chart) {
         super.chartInitialized(chart: chart)
         
         let barsGenerator = ChartBarsViewGenerator(horizontal: horizontal, layer: self, barWidth: barWidth)

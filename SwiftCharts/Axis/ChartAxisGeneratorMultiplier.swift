@@ -13,9 +13,9 @@ public enum ChartAxisGeneratorMultiplierUpdateMode {
     case Nice
 }
 
-public typealias ChartAxisGeneratorMultiplierUpdater = (axis: ChartAxis, generator: ChartAxisGeneratorMultiplier) -> Double
+public typealias ChartAxisGeneratorMultiplierUpdater = (_ axis: ChartAxis, _ generator: ChartAxisGeneratorMultiplier) -> Double
 
-public class ChartAxisGeneratorMultiplier: ChartAxisValuesGenerator {
+open class ChartAxisGeneratorMultiplier: ChartAxisValuesGenerator {
     
     public var first: Double? {
         return nil
@@ -45,18 +45,18 @@ public class ChartAxisGeneratorMultiplier: ChartAxisValuesGenerator {
         self.multiplierUpdater = multiplierUpdater
     }
     
-    public func axisInitialized(axis: ChartAxis) {}
+    public func axisInitialized(_ axis: ChartAxis) {}
     
-    public func generate(axis: ChartAxis) -> [Double] {
+    public func generate(_ axis: ChartAxis) -> [Double] {
 
-        let updatedMultiplier = multiplierUpdater(axis: axis, generator: self)
+        let updatedMultiplier = multiplierUpdater(axis, self)
         
-        return generate(axis, multiplier: updatedMultiplier)
+        return generate(axis: axis, multiplier: updatedMultiplier)
     }
     
     private func generate(axis: ChartAxis, multiplier: Double) -> [Double] {
         
-        let modelStart = calculateModelStart(axis, multiplier: multiplier)
+        let modelStart = calculateModelStart(axis: axis, multiplier: multiplier)
         
         var values = [Double]()
         var scalar = modelStart
@@ -64,11 +64,11 @@ public class ChartAxisGeneratorMultiplier: ChartAxisValuesGenerator {
             if ((scalar =~ axis.firstInit && axis.zoomFactor =~ 1) || scalar >= axis.firstVisible) && ((scalar =~ axis.lastInit && axis.zoomFactor =~ 1) || scalar <= axis.lastVisible) {
                 values.append(scalar)
             }
-            let newScalar = incrementScalar(scalar, multiplier: multiplier)
+            let newScalar = incrementScalar(scalar: scalar, multiplier: multiplier)
             
             if newScalar =~ scalar {
                 return lastValidMultiplier.map{lastMultiplier in
-                    generate(axis, multiplier: lastMultiplier).filter{$0 >= axis.firstVisible && $0 <= axis.lastVisible}
+                    generate(axis: axis, multiplier: lastMultiplier).filter{$0 >= axis.firstVisible && $0 <= axis.lastVisible}
                 } ?? []
                 
             } else {

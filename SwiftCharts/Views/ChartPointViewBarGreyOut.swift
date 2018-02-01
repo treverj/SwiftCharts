@@ -8,11 +8,11 @@
 
 import UIKit
 
-public class ChartPointViewBarGreyOut: ChartPointViewBar {
+open class ChartPointViewBarGreyOut: ChartPointViewBar {
 
-    private let greyOut: Bool
-    private let greyOutDelay: Float
-    private let greyOutAnimDuration: Float
+    fileprivate let greyOut: Bool
+    fileprivate let greyOutDelay: Float
+    fileprivate let greyOutAnimDuration: Float
     
     init(p1: CGPoint, p2: CGPoint, width: CGFloat, color: UIColor, animDuration: Float = 0.5, greyOut: Bool = false, greyOutDelay: Float = 1, greyOutAnimDuration: Float = 0.5, selectionViewUpdater: ChartViewSelector? = nil) {
         
@@ -28,16 +28,16 @@ public class ChartPointViewBarGreyOut: ChartPointViewBar {
     }
     
     public required convenience init(p1: CGPoint, p2: CGPoint, width: CGFloat, bgColor: UIColor?, animDuration: Float, selectionViewUpdater: ChartViewSelector? = nil) {
-        self.init(p1: p1, p2: p2, width: width, color: bgColor ?? UIColor.blackColor(), animDuration: animDuration, selectionViewUpdater: selectionViewUpdater)
+        self.init(p1: p1, p2: p2, width: width, color: bgColor ?? UIColor.black, animDuration: animDuration, selectionViewUpdater: selectionViewUpdater)
     }
 
-    override public func didMoveToSuperview() {
+    override open func didMoveToSuperview() {
         
         super.didMoveToSuperview()
         
         if self.greyOut {
-            UIView.animateWithDuration(CFTimeInterval(self.greyOutAnimDuration), delay: CFTimeInterval(self.greyOutDelay), options: UIViewAnimationOptions.CurveEaseOut, animations: {() -> Void in
-                self.backgroundColor = UIColor.grayColor()
+            UIView.animate(withDuration: CFTimeInterval(self.greyOutAnimDuration), delay: CFTimeInterval(self.greyOutDelay), options: UIViewAnimationOptions.curveEaseOut, animations: {() -> Void in
+                self.backgroundColor = UIColor.gray
             }, completion: nil)
         }
     }

@@ -8,7 +8,7 @@
 
 import UIKit
 
-public class ChartPointViewBar: UIView {
+open class ChartPointViewBar: UIView {
     
     let targetFrame: CGRect
     let animDuration: Float
@@ -17,7 +17,7 @@ public class ChartPointViewBar: UIView {
     
     var selectionViewUpdater: ChartViewSelector?
     
-    var tapHandler: (ChartPointViewBar -> Void)? {
+    var tapHandler: ((ChartPointViewBar) -> Void)? {
         didSet {
             if tapHandler != nil && gestureRecognizers?.isEmpty ?? true {
                 enableTap()
@@ -30,14 +30,14 @@ public class ChartPointViewBar: UIView {
     public required init(p1: CGPoint, p2: CGPoint, width: CGFloat, bgColor: UIColor? = nil, animDuration: Float = 0.5, selectionViewUpdater: ChartViewSelector? = nil) {
         
         let (targetFrame, firstFrame): (CGRect, CGRect) = {
-            if p1.y - p2.y =~ 0 { // horizontal
-                let targetFrame = CGRectMake(p1.x, p1.y - width / 2, p2.x - p1.x, width)
-                let initFrame = CGRectMake(targetFrame.origin.x, targetFrame.origin.y, 0, targetFrame.size.height)
+            if (p1.y - p2.y) =~ 0 { // horizontal
+                let targetFrame = CGRect(x: p1.x, y: p1.y - width / 2, width: p2.x - p1.x, height: width)
+                let initFrame = CGRect(x: targetFrame.origin.x, y: targetFrame.origin.y, width:0, height: targetFrame.size.height)
                 return (targetFrame, initFrame)
                 
             } else { // vertical
-                let targetFrame = CGRectMake(p1.x - width / 2, p1.y, width, p2.y - p1.y)
-                let initFrame = CGRectMake(targetFrame.origin.x, targetFrame.origin.y, targetFrame.size.width, 0)
+                let targetFrame = CGRect(x: p1.x - width / 2, y: p1.y, width: width, height: p2.y - p1.y)
+                let initFrame = CGRect(x: targetFrame.origin.x, y: targetFrame.origin.y, width: targetFrame.size.width, height: 0)
                 return (targetFrame, initFrame)
             }
         }()
@@ -73,7 +73,7 @@ public class ChartPointViewBar: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    override public func didMoveToSuperview() {
+    open override func didMoveToSuperview() {
         
         func targetState() {
             frame = targetFrame
@@ -83,7 +83,7 @@ public class ChartPointViewBar: UIView {
         if animDuration =~ 0 {
             targetState()
         } else {
-            UIView.animateWithDuration(CFTimeInterval(animDuration), delay: 0, options: .CurveEaseOut, animations: {
+            UIView.animate(withDuration: CFTimeInterval(animDuration), delay: 0, options: .curveEaseOut, animations: {
                 targetState()
             }, completion: nil)
         }

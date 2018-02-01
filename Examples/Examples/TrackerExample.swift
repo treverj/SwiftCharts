@@ -11,7 +11,7 @@ import SwiftCharts
 
 class TrackerExample: UIViewController {
 
-    private var chart: Chart? // arc
+    fileprivate var chart: Chart? // arc
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -24,7 +24,7 @@ class TrackerExample: UIViewController {
         
         let xValues = chartPoints.map{$0.x}
         
-        let yValues = ChartAxisValuesStaticGenerator.generateYAxisValuesWithChartPoints(chartPoints, minSegmentCount: 10, maxSegmentCount: 20, multiple: 2, axisValueGenerator: {ChartAxisValueDouble($0, labelSettings: labelSettings)}, addPaddingSegmentIfEdge: false)
+        let yValues = ChartAxisValuesStaticGenerator.generateYAxisValuesWithChartPoints(chartPoints: chartPoints, minSegmentCount: 10, maxSegmentCount: 20, multiple: 2, axisValueGenerator: {ChartAxisValueDouble($0, labelSettings: labelSettings)}, addPaddingSegmentIfEdge: false)
         
         let xModel = ChartAxisModel(axisValues: xValues, axisTitleLabel: ChartAxisLabel(text: "Axis title", settings: labelSettings))
         let yModel = ChartAxisModel(axisValues: yValues, axisTitleLabel: ChartAxisLabel(text: "Axis title", settings: labelSettings.defaultVertical()))
@@ -35,8 +35,8 @@ class TrackerExample: UIViewController {
         let coordsSpace = ChartCoordsSpaceLeftBottomSingleAxis(chartSettings: chartSettings, chartFrame: chartFrame, xModel: xModel, yModel: yModel)
         let (xAxisLayer, yAxisLayer, innerFrame) = (coordsSpace.xAxisLayer, coordsSpace.yAxisLayer, coordsSpace.chartInnerFrame)
         
-        let lineModel = ChartLineModel(chartPoints: chartPoints, lineColor: UIColor.redColor(), animDuration: 1, animDelay: 0)
-        let lineModel2 = ChartLineModel(chartPoints: chartPoints2, lineColor: UIColor.blueColor(), animDuration: 1, animDelay: 0)
+        let lineModel = ChartLineModel(chartPoints: chartPoints, lineColor: UIColor.red, animDuration: 1, animDelay: 0)
+        let lineModel2 = ChartLineModel(chartPoints: chartPoints2, lineColor: UIColor.blue, animDuration: 1, animDelay: 0)
         let chartPointsLineLayer = ChartPointsLineLayer(xAxis: xAxisLayer.axis, yAxis: yAxisLayer.axis, lineModels: [lineModel, lineModel2], useView: false)
         
         let thumbSettings = ChartPointsLineTrackerLayerThumbSettings(thumbSize: Env.iPad ? 20 : 10, thumbBorderWidth: Env.iPad ? 4 : 2)
@@ -44,26 +44,26 @@ class TrackerExample: UIViewController {
         
         var currentPositionLabels: [UILabel] = []
         
-        let chartPointsTrackerLayer = ChartPointsLineTrackerLayer(xAxis: xAxisLayer.axis, yAxis: yAxisLayer.axis, lines: [chartPoints, chartPoints2], lineColor: UIColor.blackColor(), animDuration: 1, animDelay: 2, settings: trackerLayerSettings) {chartPointsWithScreenLoc in
+        let chartPointsTrackerLayer = ChartPointsLineTrackerLayer(xAxis: xAxisLayer.axis, yAxis: yAxisLayer.axis, lines: [chartPoints, chartPoints2], lineColor: UIColor.black, animDuration: 1, animDelay: 2, settings: trackerLayerSettings) {chartPointsWithScreenLoc in
 
             currentPositionLabels.forEach{$0.removeFromSuperview()}
             
-            for (index, chartPointWithScreenLoc) in chartPointsWithScreenLoc.enumerate() {
+            for (index, chartPointWithScreenLoc) in chartPointsWithScreenLoc.enumerated() {
                 
                 let label = UILabel()
                 label.center = chartPointWithScreenLoc.screenLoc
                 label.text = chartPointWithScreenLoc.chartPoint.description
                 label.sizeToFit()
                 
-                label.backgroundColor = index == 0 ? UIColor.redColor() : UIColor.blueColor()
-                label.textColor = UIColor.whiteColor()
+                label.backgroundColor = index == 0 ? UIColor.red : UIColor.blue
+                label.textColor = UIColor.white
                 
                 currentPositionLabels.append(label)
                 self.view.addSubview(label)
             }
         }
         
-        let settings = ChartGuideLinesDottedLayerSettings(linesColor: UIColor.blackColor(), linesWidth: ExamplesDefaults.guidelinesWidth)
+        let settings = ChartGuideLinesDottedLayerSettings(linesColor: UIColor.black, linesWidth: ExamplesDefaults.guidelinesWidth)
         let guidelinesLayer = ChartGuideLinesDottedLayer(xAxisLayer: xAxisLayer, yAxisLayer: yAxisLayer, settings: settings)
         
         let chart = Chart(

@@ -30,7 +30,7 @@ public struct ChartLineModel<T: ChartPoint> {
     /// The delay in seconds before the animation runs
     let animDelay: Float
     
-    public init(chartPoints: [T], lineColor: UIColor, lineWidth: CGFloat = 1, lineJoin: LineJoin = .Round, lineCap: LineCap = .Round, animDuration: Float, animDelay: Float) {
+    public init(chartPoints: [T], lineColor: UIColor, lineWidth: CGFloat = 1, lineJoin: LineJoin = .round, lineCap: LineCap = .round, animDuration: Float, animDelay: Float) {
         self.chartPoints = chartPoints
         self.lineColor = lineColor
         self.lineWidth = lineWidth

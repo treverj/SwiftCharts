@@ -26,7 +26,7 @@ public class ChartAxisValuesGeneratorXDividers: ChartAxisGeneratorMultiplier {
     
     private let maxTextSize: CGFloat
     
-    public init(minValue: Double, maxValue: Double, preferredDividers: Int, nice: Bool, formatter: NSNumberFormatter, font: UIFont, minSpace: CGFloat = 10, multiplierUpdateMode: ChartAxisGeneratorMultiplierUpdateMode = .Halve) {
+    public init(minValue: Double, maxValue: Double, preferredDividers: Int, nice: Bool, formatter: NumberFormatter, font: UIFont, minSpace: CGFloat = 10, multiplierUpdateMode: ChartAxisGeneratorMultiplierUpdateMode = .Halve) {
         
         self.minValue = minValue
         self.maxValue = maxValue
@@ -35,15 +35,15 @@ public class ChartAxisValuesGeneratorXDividers: ChartAxisGeneratorMultiplier {
         self.preferredDividers = preferredDividers
         self.minSpace = minSpace
         
-        self.maxTextSize = ChartAxisValuesGeneratorXDividers.largestSize(minValue, maxValue: maxValue, formatter: formatter, font: font)
+        self.maxTextSize = ChartAxisValuesGeneratorXDividers.largestSize(minValue: minValue, maxValue: maxValue, formatter: formatter, font: font)
         
         super.init(DBL_MAX, multiplierUpdateMode: multiplierUpdateMode)
     }
     
-    private static func largestSize(minValue: Double, maxValue: Double, formatter: NSNumberFormatter, font: UIFont) -> CGFloat {
+    private static func largestSize(minValue: Double, maxValue: Double, formatter: NumberFormatter, font: UIFont) -> CGFloat {
         
-        let minNumberTextSize = formatter.stringFromNumber(minValue)!.width(font)
-        let maxNumberTextSize = formatter.stringFromNumber(maxValue)!.width(font)
+        let minNumberTextSize = formatter.string(from: NSNumber(value: minValue))!.width(font)
+        let maxNumberTextSize = formatter.string(from: NSNumber(value: maxValue))!.width(font)
         
         let minDigits = formatter.minimumFractionDigits
         let maxDigits = formatter.maximumFractionDigits
@@ -78,7 +78,7 @@ public class ChartAxisValuesGeneratorXDividers: ChartAxisGeneratorMultiplier {
         while(currentDelta < maxDelta && counter < 100) {
             let min = minValue - currentDelta
             let max = maxValue + currentDelta
-            if let fittingFactor = findFittingFactor(axis, modelLength: Int(max - min)) {
+            if let fittingFactor = findFittingFactor(axis: axis, modelLength: Int(max - min)) {
                 fittingFactorsPerDelta.append((min, max, Double(fittingFactor)))
             }
 
@@ -124,7 +124,7 @@ public class ChartAxisValuesGeneratorXDividers: ChartAxisGeneratorMultiplier {
         return lastFitting
     }
     
-    public override func axisInitialized(axis: ChartAxis) {
+    public override func axisInitialized(_ axis: ChartAxis) {
         
         func defaultInit() {
             let maxDividers = Int((axis.screenLength + minSpace) / (maxTextSize + minSpace))
@@ -133,7 +133,7 @@ public class ChartAxisValuesGeneratorXDividers: ChartAxisGeneratorMultiplier {
         }
         
         if nice {
-            if let rangeAndMultiplier = calculateFittingRangeAndFactor(axis) {
+            if let rangeAndMultiplier = calculateFittingRangeAndFactor(axis: axis) {
                 self.minValue = rangeAndMultiplier.min
                 self.maxValue = rangeAndMultiplier.max
                 self.multiplier = Double(maxValue - minValue) / Double(rangeAndMultiplier.factor)
