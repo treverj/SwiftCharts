@@ -181,14 +181,14 @@ public class ChartGuideLinesForValuesDottedLayer_<N>: ChartGuideLinesForValuesLa
     
     override private func drawGuideline(context: CGContextRef, p1: CGPoint, p2: CGPoint) {
         if (!self.labelDrawn) {
-            let width: CGFloat = 40.0
+            let width = (self.title.size(UIFont.systemFont(ofSize: 10))).width + 4.0
             let height: CGFloat = 20.0
             let x = p1.x + ((width+1)*self.conflicts)
             let y = p1.y
             let label = UILabel(frame: CGRectMake(x, y, width, height))
             label.backgroundColor = UIColor.blackColor()
             label.textColor = UIColor.whiteColor()
-            label.font = UIFont(name: "Arial", size: 10)
+            label.font = UIFont.systemFont(ofSize: 10)
             label.text = self.title
             label.textAlignment = .Center
             self.chart?.view.addSubview(label)
